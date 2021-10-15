@@ -1,0 +1,7 @@
+apiVersion: scheduling.moirai.io/v1alpha1
+kind: Queue
+metadata:
+  name: queue-sample
+spec:
+  # Add fields here
+  foo: bar

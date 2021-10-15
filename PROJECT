@@ -1,0 +1,16 @@
+domain: moirai.io
+layout:
+- go.kubebuilder.io/v3
+projectName: moirai
+repo: github.com/moirai-io/moirai
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: moirai.io
+  group: scheduling
+  kind: Queue
+  path: github.com/moirai-io/moirai/api/v1alpha1
+  version: v1alpha1
+version: "3"
