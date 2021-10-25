@@ -1,0 +1,7 @@
+apiVersion: scheduling.moirai.io/v1alpha1
+kind: QueueBinding
+metadata:
+  name: queuebinding-sample
+spec:
+  # Add fields here
+  foo: bar

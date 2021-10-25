@@ -1,0 +1,24 @@
+# permissions for end users to edit queuebindings.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: queuebinding-editor-role
+rules:
+- apiGroups:
+  - scheduling.moirai.io
+  resources:
+  - queuebindings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - scheduling.moirai.io
+  resources:
+  - queuebindings/status
+  verbs:
+  - get
