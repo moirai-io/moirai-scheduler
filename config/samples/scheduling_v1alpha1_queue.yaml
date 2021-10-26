@@ -3,5 +3,6 @@ kind: Queue
 metadata:
   name: queue-sample
 spec:
-  # Add fields here
-  foo: bar
+  resources:
+    cpu: 1
+    memory: 500Mi

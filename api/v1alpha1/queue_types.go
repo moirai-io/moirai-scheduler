@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -25,20 +26,22 @@ import (
 
 // QueueSpec defines the desired state of Queue
 type QueueSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of Queue. Edit queue_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Resources corev1.ResourceList `json:"resources,omitempty"`
 }
+
+type QueueState string
+
+const QueueStateReady QueueState = "Ready"
 
 // QueueStatus defines the observed state of Queue
 type QueueStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	State QueueState `json:"state,omitempty"`
 }
 
 //+kubebuilder:object:root=true
+//+kubebuilder:resource:scope=Cluster
 //+kubebuilder:subresource:status
 
 // Queue is the Schema for the queues API

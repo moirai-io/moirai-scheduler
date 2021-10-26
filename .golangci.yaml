@@ -1,0 +1,26 @@
+linter-settings:
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  misspell:
+    locale: US
+
+linters:
+  disable-all: true
+  enable:
+    - golint
+    - goconst
+    - gofmt
+    - goimports
+    - misspell
+    - unparam
+
+issues:
+  exclude-use-default: false
+  exclude-rules:
+    - path: _test.go
+      linters:
+        - errcheck
+
+run:
+  deadline: 5m

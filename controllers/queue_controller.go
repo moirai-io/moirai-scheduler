@@ -20,17 +20,22 @@ import (
 	"context"
 
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/go-logr/logr"
 	schedulingv1alpha1 "github.com/moirai-io/moirai/api/v1alpha1"
+	"github.com/moirai-io/moirai/pkg/queue"
 )
 
 // QueueReconciler reconciles a Queue object
 type QueueReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Log      logr.Logger
+	Recorder record.EventRecorder
+	Scheme   *runtime.Scheme
 }
 
 //+kubebuilder:rbac:groups=scheduling.moirai.io,resources=queues,verbs=get;list;watch;create;update;patch;delete
@@ -47,9 +52,30 @@ type QueueReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
 func (r *QueueReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	log := log.FromContext(ctx)
 
-	// your logic here
+	var original schedulingv1alpha1.Queue
+	if err := r.Get(ctx, req.NamespacedName, &original); err != nil {
+		log.Error(err, "unable to fetch Queue")
+		// we'll ignore not-found errors, since they can't be fixed by an immediate
+		// requeue (we'll need to wait for a new notification), and we can get them
+		// on deleted requests.
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+	instance := original.DeepCopy()
+
+	reconciler, err := queue.NewReconciler(r.Client, log, r.Recorder, r.Scheme, instance)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	if err := reconciler.Reconcile(); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	if err := r.Status().Update(ctx, instance); err != nil {
+		log.Error(err, "unable to update CronJob status")
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 }

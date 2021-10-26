@@ -79,10 +79,19 @@ func main() {
 	}
 
 	if err = (&controllers.QueueReconciler{
+		Client:   mgr.GetClient(),
+		Log:      ctrl.Log.WithName("controllers").WithName("Queue"),
+		Recorder: mgr.GetEventRecorderFor("Queue"),
+		Scheme:   mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Queue")
+		os.Exit(1)
+	}
+	if err = (&controllers.QueueBindingReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Queue")
+		setupLog.Error(err, "unable to create controller", "controller", "QueueBinding")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
