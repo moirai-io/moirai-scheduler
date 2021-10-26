@@ -2,7 +2,7 @@ domain: moirai.io
 layout:
 - go.kubebuilder.io/v3
 projectName: moirai
-repo: github.com/moirai-io/moirai
+repo: github.com/moirai-io/moirai-operator
 resources:
 - api:
     crdVersion: v1
@@ -11,7 +11,7 @@ resources:
   domain: moirai.io
   group: scheduling
   kind: Queue
-  path: github.com/moirai-io/moirai/api/v1alpha1
+  path: github.com/moirai-io/moirai-operator/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -20,6 +20,6 @@ resources:
   domain: moirai.io
   group: scheduling
   kind: QueueBinding
-  path: github.com/moirai-io/moirai/api/v1alpha1
+  path: github.com/moirai-io/moirai-operator/api/v1alpha1
   version: v1alpha1
 version: "3"

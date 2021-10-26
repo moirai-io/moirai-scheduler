@@ -1,4 +1,4 @@
-module github.com/moirai-io/moirai
+module github.com/moirai-io/moirai-operator
 
 go 1.17
 

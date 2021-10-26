@@ -31,8 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	schedulingv1alpha1 "github.com/moirai-io/moirai/api/v1alpha1"
-	"github.com/moirai-io/moirai/controllers"
+	schedulingv1alpha1 "github.com/moirai-io/moirai-operator/api/v1alpha1"
+	"github.com/moirai-io/moirai-operator/controllers"
 	//+kubebuilder:scaffold:imports
 )
 

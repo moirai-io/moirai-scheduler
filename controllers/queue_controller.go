@@ -26,8 +26,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/go-logr/logr"
-	schedulingv1alpha1 "github.com/moirai-io/moirai/api/v1alpha1"
-	"github.com/moirai-io/moirai/pkg/queue"
+	schedulingv1alpha1 "github.com/moirai-io/moirai-operator/api/v1alpha1"
+	"github.com/moirai-io/moirai-operator/pkg/queue"
 )
 
 // QueueReconciler reconciles a Queue object
