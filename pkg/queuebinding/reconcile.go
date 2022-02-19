@@ -37,7 +37,7 @@ func NewReconciler(
 }
 
 func (r *Reconciler) Reconcile() error {
-	r.log.Info("Reconciling Queue")
+	r.log.Info("Reconciling QueueBinding")
 
 	return nil
 }
