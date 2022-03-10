@@ -3,5 +3,9 @@ kind: QueueBinding
 metadata:
   name: queuebinding-sample
 spec:
-  # Add fields here
-  foo: bar
+  queue: "queue-sample"
+  PriorityClassName: "batch"
+  resources:
+    cpu: 1
+    memory: 500Mi
+  jobRef:
