@@ -2,7 +2,7 @@ package queuebinding
 
 import (
 	"github.com/go-logr/logr"
-	schedulingv1alpha1 "github.com/moirai-io/moirai-operator/api/v1alpha1"
+	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"

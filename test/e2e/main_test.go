@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	schedulingv1alpha1 "github.com/moirai-io/moirai-operator/api/v1alpha1"
+	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/klog/v2"

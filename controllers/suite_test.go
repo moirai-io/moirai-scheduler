@@ -30,7 +30,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	schedulingv1alpha1 "github.com/moirai-io/moirai-operator/api/v1alpha1"
+	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 

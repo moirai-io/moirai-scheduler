@@ -4,14 +4,14 @@ import (
 	"context"
 
 	"github.com/MakeNowJust/heredoc"
-	"github.com/moirai-io/moirai-operator/moiraictl/cmd/utils"
 	"github.com/spf13/cobra"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	schedulingv1alpha1 "github.com/moirai-io/moirai-operator/api/v1alpha1"
+	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	"github.com/moirai-io/moirai-scheduler/moiraictl/cmd/utils"
 )
 
 // NewCmdQueue returns the Queue command for moiraictl.

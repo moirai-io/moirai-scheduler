@@ -19,15 +19,15 @@ package controllers
 import (
 	"context"
 
+	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/go-logr/logr"
-	schedulingv1alpha1 "github.com/moirai-io/moirai-operator/api/v1alpha1"
-	"github.com/moirai-io/moirai-operator/pkg/queue"
+	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	"github.com/moirai-io/moirai-scheduler/pkg/queue"
 )
 
 // QueueReconciler reconciles a Queue object

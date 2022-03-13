@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/moirai-io/moirai-operator/moiraictl/cmd"
+	"github.com/moirai-io/moirai-scheduler/moiraictl/cmd"
 )
 
 func main() {

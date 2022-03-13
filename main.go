@@ -31,8 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	schedulingv1alpha1 "github.com/moirai-io/moirai-operator/api/v1alpha1"
-	"github.com/moirai-io/moirai-operator/controllers"
+	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	"github.com/moirai-io/moirai-scheduler/controllers"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -87,6 +87,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Queue")
 		os.Exit(1)
 	}
+
 	if err = (&controllers.QueueBindingReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),

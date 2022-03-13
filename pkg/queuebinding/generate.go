@@ -1,7 +1,7 @@
 package queuebinding
 
 import (
-	schedulingv1alpha1 "github.com/moirai-io/moirai-operator/api/v1alpha1"
+	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
 )
 
 type generator struct {
