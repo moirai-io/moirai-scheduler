@@ -58,10 +58,10 @@ vet: ## Run go vet against code.
 ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
 .PHONY: test
 test: manifests generate fmt vet envtest ## Run tests.
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./... -coverprofile cover.out
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./pkg/... -coverprofile cover.out
 
 .PHONY: e2e-test
-e2e-test:
+e2e-test: ## Run e2e tests.
 	IMG=${IMG} go test -tags=e2e -v ./test/e2e
 
 ##@ Build
@@ -70,9 +70,21 @@ e2e-test:
 build: generate fmt vet ## Build manager binary.
 	go build -o bin/manager main.go
 
+.PHONY: build-scheduler
+build-scheduler: ## Build Moirai scheduler binary.
+	go build -o bin/moiraictl cmd/scheduler/main.go
+
+.PHONY: build-cli
+build-cli: ## Build Moirai command line tool binary.
+	go build -o bin/moiraictl cmd/cli/main.go
+
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./main.go
+
+.PHONY: run-scheduler
+run-scheduler: manifests generate fmt vet ## Run a scheduler from your host.
+	go run ./cmd/scheduler/main.go --config manifests/scheduler/scheduler-config.yaml
 
 .PHONY: docker-build
 docker-build: test ## Build docker image with the manager.
@@ -81,10 +93,6 @@ docker-build: test ## Build docker image with the manager.
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
 	docker push ${IMG}
-
-.PHONY: moiraictl
-moiraictl:
-	CGO_ENABLED=0 go build -o bin/moiraictl moiraictl/main.go
 
 ##@ Deployment
 
@@ -105,16 +113,20 @@ deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
 
+##@ Tools
 
 CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
+.PHONY: controller-gen
 controller-gen: ## Download controller-gen locally if necessary.
 	$(call go-get-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen@v0.8.0)
 
 KUSTOMIZE = $(shell pwd)/bin/kustomize
+.PHONY: kustomize
 kustomize: ## Download kustomize locally if necessary.
 	$(call go-get-tool,$(KUSTOMIZE),sigs.k8s.io/kustomize/kustomize/v3@v3.8.7)
 
 ENVTEST = $(shell pwd)/bin/setup-envtest
+.PHONY: envtest
 envtest: ## Download envtest-setup locally if necessary.
 	$(call go-get-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest@latest)
 
