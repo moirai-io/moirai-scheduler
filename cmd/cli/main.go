@@ -3,11 +3,11 @@ package main
 import (
 	"os"
 
-	"github.com/moirai-io/moirai-scheduler/moiraictl/cmd"
+	moiraictl "github.com/moirai-io/moirai-scheduler/pkg/cli"
 )
 
 func main() {
-	cli := cmd.NewCmdRoot()
+	cli := moiraictl.NewCmdRoot()
 	if err := cli.Execute(); err != nil {
 		os.Exit(1)
 	}

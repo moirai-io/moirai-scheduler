@@ -1,6 +1,6 @@
 # moiraictl
 
-A command line tool for moirai.
+A command line tool for Moirai.
 
 ## Available Commands
 

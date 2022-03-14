@@ -11,7 +11,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
-	"github.com/moirai-io/moirai-scheduler/moiraictl/cmd/utils"
+	"github.com/moirai-io/moirai-scheduler/pkg/cli/utils"
 )
 
 // NewCmdQueue returns the Queue command for moiraictl.
