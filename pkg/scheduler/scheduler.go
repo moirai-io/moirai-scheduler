@@ -1,6 +1,10 @@
 package scheduler
 
 import (
+	"context"
+	"fmt"
+	"os"
+
 	"github.com/moirai-io/moirai-scheduler/pkg/internal"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/klog/v2"
@@ -34,32 +38,33 @@ func (p *Plugin) Name() string {
 
 // New initializes a new plugin and returns it.
 func New(obj runtime.Object, handle framework.Handle) (framework.Plugin, error) {
-	klog.V(3).Info("Creating new moirai plugin")
+	klog.Info("Creating new moirai plugin")
 
 	moiraiClient, err := internal.NewClient()
 	if err != nil {
 		return nil, err
 	}
 
-	// moiraiCache, err := internal.NewCache()
-	// if err != nil {
-	// 	return nil, err
-	// }
+	moiraiCache, err := internal.NewCache()
+	if err != nil {
+		return nil, err
+	}
 
-	// err = moiraiCache.Start(context.TODO())
-	// if err != nil {
-	// 	return nil, err
-	// }
+	go func(ctx context.Context) {
+		if err = moiraiCache.Start(ctx); err != nil {
+			os.Exit(1)
+		}
+	}(context.TODO())
 
-	// if !moiraiCache.WaitForCacheSync(context.TODO()) {
-	// 	err := fmt.Errorf("failed to sync caches")
-	// 	klog.Error("failed to sync caches")
-	// 	return nil, err
-	// }
+	if !moiraiCache.WaitForCacheSync(context.TODO()) {
+		err := fmt.Errorf("failed to sync caches")
+		klog.Error("failed to sync caches")
+		return nil, err
+	}
 
 	return &Plugin{
 		moiraiClient:     moiraiClient,
-		moiraiCache:      nil,
+		moiraiCache:      moiraiCache,
 		frameworkHandler: handle,
 	}, nil
 }
