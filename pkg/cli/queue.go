@@ -1,7 +1,8 @@
-package cmd
+package cli
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -11,7 +12,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
-	"github.com/moirai-io/moirai-scheduler/pkg/cli/utils"
+	"github.com/moirai-io/moirai-scheduler/pkg/internal"
 )
 
 // NewCmdQueue returns the Queue command for moiraictl.
@@ -50,7 +51,7 @@ func newCmdCreate() *cobra.Command {
 				opts.Name = args[0]
 			}
 
-			c, err := utils.NewClient()
+			c, err := internal.NewClient()
 			if err != nil {
 				return err
 			}
@@ -61,7 +62,7 @@ func newCmdCreate() *cobra.Command {
 					Name:      opts.Name,
 				},
 				Spec: schedulingv1alpha1.QueueSpec{
-					Resources: v1.ResourceList{
+					Capacity: v1.ResourceList{
 						v1.ResourceCPU:    resource.MustParse(opts.CPU),
 						v1.ResourceMemory: resource.MustParse(opts.Memory),
 					},
@@ -101,7 +102,7 @@ func newCmdGet() *cobra.Command {
 				opts.Name = args[0]
 			}
 
-			c, err := utils.NewClient()
+			c, err := internal.NewClient()
 			if err != nil {
 				return err
 			}
@@ -112,6 +113,7 @@ func newCmdGet() *cobra.Command {
 				Name:      opts.Name,
 			}, queue)
 
+			fmt.Println(queue)
 			return err
 		},
 	}
