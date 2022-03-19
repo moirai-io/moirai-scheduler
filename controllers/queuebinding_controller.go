@@ -20,6 +20,8 @@ import (
 	"context"
 
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/kubernetes/pkg/apis/scheduling"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -39,17 +41,33 @@ type QueueBindingReconciler struct {
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the QueueBinding object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
 func (r *QueueBindingReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	log := log.FromContext(ctx)
 
-	// your logic here
+	var queueBindingObj schedulingv1alpha1.QueueBinding
+	if err := r.Get(ctx, req.NamespacedName, &queueBindingObj); err != nil {
+		log.Error(err, "unable to fetch QueueBinding")
+		// we'll ignore not-found errors, since they can't be fixed by an immediate
+		// requeue (we'll need to wait for a new notification), and we can get them
+		// on deleted requests.
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+	log.V(3).Info("Reconciling QueueBinding")
+
+	var priorityClass scheduling.PriorityClass
+	err := r.Get(ctx, types.NamespacedName{
+		Namespace: req.Namespace,
+		Name:      queueBindingObj.Spec.PriorityClassName,
+	}, &priorityClass)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// update status
+	if err := r.Status().Update(ctx, &queueBindingObj); err != nil {
+		log.Error(err, "unable to update QueueBinding status")
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 }
