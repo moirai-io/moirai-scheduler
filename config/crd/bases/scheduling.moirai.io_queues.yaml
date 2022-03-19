@@ -15,7 +15,17 @@ spec:
     singular: queue
   scope: Cluster
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.resources.cpu
+      name: CPU
+      type: string
+    - jsonPath: .spec.resources.memory
+      name: Memory
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Queue is the Schema for the queues API
@@ -35,7 +45,7 @@ spec:
           spec:
             description: QueueSpec defines the desired state of Queue
             properties:
-              resources:
+              capacity:
                 additionalProperties:
                   anyOf:
                   - type: integer
@@ -48,11 +58,23 @@ spec:
           status:
             description: QueueStatus defines the observed state of Queue
             properties:
+              conditions:
+                items:
+                  description: QueueConditionType defines the condition type of Queue
+                  type: string
+                type: array
               state:
-                description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                  of cluster Important: Run "make" to regenerate code after modifying
-                  this file'
+                description: QueueState defines the state of Queue
                 type: string
+              used:
+                additionalProperties:
+                  anyOf:
+                  - type: integer
+                  - type: string
+                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                  x-kubernetes-int-or-string: true
+                description: ResourceList is a set of (resource name, quantity) pairs.
+                type: object
             type: object
         type: object
     served: true

@@ -45,10 +45,18 @@ type QueueBindingCondition struct {
 	Message            string                    `json:"message,omitempty"`
 }
 
+// QueueBindingStatus defines the observed phase of QueueBinding
+type QueueBindingPhaseType string
+
+const (
+	Pending   QueueBindingPhaseType = "Pending"
+	Scheduled QueueBindingPhaseType = "Scheduled"
+	Failed    QueueBindingPhaseType = "Failed"
+)
+
 // QueueBindingStatus defines the observed state of QueueBinding
 type QueueBindingStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	Conditions []QueueBindingCondition `json:"conditions,omitempty"`
 }
 
 //+kubebuilder:object:root=true

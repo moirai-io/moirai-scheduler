@@ -1,28 +1,31 @@
 package scheduler
 
 import (
-	"context"
-
-	v1 "k8s.io/api/core/v1"
+	"github.com/moirai-io/moirai-scheduler/pkg/internal"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
-
-	moiraiClient "github.com/moirai-io/moirai-scheduler/pkg/client"
 )
 
 const (
+	// Name is the name of the plugin used in Registry and configurations.
 	Name = "moirai"
 )
 
+// Plugin is a scheduling plugin for Moirai.
 type Plugin struct {
-	client client.WithWatch
+	moiraiClient     client.Client
+	moiraiCache      cache.Cache
+	frameworkHandler framework.Handle
 }
 
+var _ framework.PreFilterPlugin = &Plugin{}
 var _ framework.FilterPlugin = &Plugin{}
+var _ framework.PostFilterPlugin = &Plugin{}
+var _ framework.PreScorePlugin = &Plugin{}
+var _ framework.ScorePlugin = &Plugin{}
 
 // Name returns name of the plugin.
 func (p *Plugin) Name() string {
@@ -31,33 +34,38 @@ func (p *Plugin) Name() string {
 
 // New initializes a new plugin and returns it.
 func New(obj runtime.Object, handle framework.Handle) (framework.Plugin, error) {
-	// return nil, errors.New("not implemented")
 	klog.V(3).Info("Creating new moirai plugin")
-	c, err := moiraiClient.NewWatchClient()
+
+	moiraiClient, err := internal.NewClient()
 	if err != nil {
 		return nil, err
 	}
 
-	go func() {
-		watchInterface, err := c.Watch(context.TODO(), &schedulingv1alpha1.QueueList{}, &client.ListOptions{})
-		klog.V(3).Info("Watching for queue changes")
-		if err != nil {
-			klog.Error(err)
-			return
-		}
-		defer watchInterface.Stop()
+	// moiraiCache, err := internal.NewCache()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-		for event := range watchInterface.ResultChan() {
-			klog.V(3).Info("Received event", event.Object)
-		}
-	}()
+	// err = moiraiCache.Start(context.TODO())
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// if !moiraiCache.WaitForCacheSync(context.TODO()) {
+	// 	err := fmt.Errorf("failed to sync caches")
+	// 	klog.Error("failed to sync caches")
+	// 	return nil, err
+	// }
 
 	return &Plugin{
-		client: c,
+		moiraiClient:     moiraiClient,
+		moiraiCache:      nil,
+		frameworkHandler: handle,
 	}, nil
 }
 
-func (p *Plugin) Filter(ctx context.Context, _ *framework.CycleState, pod *v1.Pod, node *framework.NodeInfo) *framework.Status {
-	klog.V(3).Infof("filter pod: %v, node: %v\n", pod.Name, node.Node().Name)
-	return framework.NewStatus(framework.Success, "")
+func (p *Plugin) EventsToRegister() []framework.ClusterEvent {
+	return []framework.ClusterEvent{
+		{Resource: framework.Pod, ActionType: framework.All},
+	}
 }

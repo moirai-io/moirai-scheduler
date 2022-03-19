@@ -21,28 +21,49 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+const (
+	SuspendAnnotation   string = "moirai.io/suspend"
+	QueueNameAnnotation string = "moirai.io/queue-name"
+)
 
 // QueueSpec defines the desired state of Queue
 type QueueSpec struct {
-	Resources corev1.ResourceList `json:"resources,omitempty"`
+	Capacity corev1.ResourceList `json:"capacity,omitempty"`
 }
 
+// QueueConditionType defines the condition type of Queue
+type QueueConditionType string
+
+// QueueCondition defines the observed state of Queue
+type QueueCondition struct {
+	Type               QueueConditionType     `json:"type,omitempty"`
+	Status             corev1.ConditionStatus `json:"status,omitempty"`
+	LastTransitionTime metav1.Time            `json:"lastTransitionTime,omitempty"`
+	Reason             string                 `json:"reason,omitempty"`
+	Message            string                 `json:"message,omitempty"`
+}
+
+// QueueState defines the state of Queue
 type QueueState string
 
-const QueueStateReady QueueState = "Ready"
+const (
+	QueueStateReady       QueueState = "Ready"
+	QueueStateUnavailable QueueState = "Unavailable"
+)
 
 // QueueStatus defines the observed state of Queue
 type QueueStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-	State QueueState `json:"state,omitempty"`
+	State      QueueState           `json:"state,omitempty"`
+	Used       corev1.ResourceList  `json:"used,omitempty"`
+	Conditions []QueueConditionType `json:"conditions,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:resource:scope=Cluster
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="CPU",type="string",JSONPath=".spec.resources.cpu"
+//+kubebuilder:printcolumn:name="Memory",type="string",JSONPath=".spec.resources.memory"
+//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 // Queue is the Schema for the queues API
 type Queue struct {

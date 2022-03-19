@@ -1,10 +1,10 @@
 apiVersion: scheduling.moirai.io/v1alpha1
 kind: QueueBinding
 metadata:
-  name: queuebinding-sample
+  name: sample-queuebinding
 spec:
-  queue: "queue-sample"
-  PriorityClassName: "batch"
+  queue: sample-queue
+  PriorityClassName: batch
   resources:
     cpu: 1
     memory: 500Mi

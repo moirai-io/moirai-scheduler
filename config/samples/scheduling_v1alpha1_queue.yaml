@@ -1,7 +1,7 @@
 apiVersion: scheduling.moirai.io/v1alpha1
 kind: Queue
 metadata:
-  name: queue-sample
+  name: sample-queue
 spec:
   resources:
     cpu: 1

@@ -4,6 +4,12 @@ IMG ?= moirai-scheduler:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.23
 
+VERSION ?= v1.23.3-moirai-scheduler-$(shell date +%Y%m%d)
+SHA1 ?= $(shell git rev-parse HEAD)
+BUILD = $(shell date +%FT%T%z)
+
+LDFLAGS=-ldflags '-X k8s.io/component-base/version.gitVersion=$(VERSION) -X k8s.io/component-base/version.gitCommit=$(SHA1) -X k8s.io/component-base/version.buildDate=$(BUILD)'
+
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
@@ -72,11 +78,11 @@ build: generate fmt vet ## Build manager binary.
 
 .PHONY: build-scheduler
 build-scheduler: ## Build Moirai scheduler binary.
-	go build -o bin/moiraictl cmd/scheduler/main.go
+	CGO_ENABLED=0 go build ${LDFLAGS} -o bin/moirai-scheduler cmd/scheduler/main.go
 
 .PHONY: build-cli
 build-cli: ## Build Moirai command line tool binary.
-	go build -o bin/moiraictl cmd/cli/main.go
+	CGO_ENABLED=0 go build -o bin/moiraictl cmd/cli/main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
@@ -84,7 +90,7 @@ run: manifests generate fmt vet ## Run a controller from your host.
 
 .PHONY: run-scheduler
 run-scheduler: manifests generate fmt vet ## Run a scheduler from your host.
-	go run ./cmd/scheduler/main.go --config manifests/scheduler/scheduler-config.yaml
+	go run ${LDFLAGS} ./cmd/scheduler/main.go --config manifests/scheduler/scheduler-config.yaml -v 3
 
 .PHONY: docker-build
 docker-build: test ## Build docker image with the manager.
@@ -93,6 +99,10 @@ docker-build: test ## Build docker image with the manager.
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
 	docker push ${IMG}
+
+.PHONY: clean
+clean:
+	rm -rf ./bin
 
 ##@ Deployment
 
