@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
@@ -45,18 +44,6 @@ func (m *MoiraiManager) GetQueueBinding(ctx context.Context, pod *corev1.Pod) (*
 	}
 
 	return &queueBinding, nil
-}
-
-// AnnotatePod sets the annotation to the specified pod
-func (m *MoiraiManager) AnnotatePod(ctx context.Context, pod *corev1.Pod) {
-	annotations := map[string]string{}
-	if pod.Annotations != nil {
-		annotations = pod.Annotations
-	}
-	// TODO:
-	annotations["test"] = "test"
-	pod.Annotations = annotations
-	m.client.CoreV1().Pods(pod.Namespace).Update(ctx, pod, metav1.UpdateOptions{})
 }
 
 // GetNodeAvaliableResource returns the available resource of the node

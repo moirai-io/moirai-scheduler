@@ -28,11 +28,21 @@ type Plugin struct {
 	frameworkHandler framework.Handle
 }
 
+// scheduling cycle
 var _ framework.PreFilterPlugin = &Plugin{}
 var _ framework.FilterPlugin = &Plugin{}
 var _ framework.PostFilterPlugin = &Plugin{}
+
 var _ framework.PreScorePlugin = &Plugin{}
 var _ framework.ScorePlugin = &Plugin{}
+
+var _ framework.ReservePlugin = &Plugin{}
+var _ framework.PermitPlugin = &Plugin{}
+
+// binding cycle
+var _ framework.PostBindPlugin = &Plugin{}
+
+var _ framework.EnqueueExtensions = &Plugin{}
 
 // Name returns name of the plugin.
 func (p *Plugin) Name() string {

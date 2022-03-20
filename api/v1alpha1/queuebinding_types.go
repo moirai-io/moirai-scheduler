@@ -60,6 +60,8 @@ const (
 
 // QueueBindingStatus defines the observed state of QueueBinding
 type QueueBindingStatus struct {
+	Phase      QueueBindingPhaseType   `json:"phase,omitempty"`
+	Scheduled  bool                    `json:"scheduled,omitempty"`
 	Conditions []QueueBindingCondition `json:"conditions,omitempty"`
 }
 
