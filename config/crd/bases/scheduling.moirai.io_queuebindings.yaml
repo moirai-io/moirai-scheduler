@@ -100,7 +100,7 @@ spec:
               queue:
                 description: Queue is the name of the queue to bind to
                 type: string
-              resource:
+              resources:
                 additionalProperties:
                   anyOf:
                   - type: integer

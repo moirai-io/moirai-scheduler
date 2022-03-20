@@ -4,8 +4,10 @@ metadata:
   name: sample-queuebinding
 spec:
   queue: sample-queue
-  PriorityClassName: batch
+  priorityClassName: batch
   resources:
     cpu: 1
     memory: 500Mi
   jobRef:
+    kind: Job
+    name: sample-job

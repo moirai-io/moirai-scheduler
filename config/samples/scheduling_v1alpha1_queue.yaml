@@ -3,6 +3,6 @@ kind: Queue
 metadata:
   name: sample-queue
 spec:
-  resources:
+  capacity:
     cpu: 1
     memory: 500Mi

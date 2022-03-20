@@ -21,6 +21,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	QueueBindingLabel string = "moirai.io/queue-binding"
+)
+
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
@@ -30,7 +34,7 @@ type QueueBindingSpec struct {
 	Queue string `json:"queue,omitempty"`
 	// PriorityClassName is the name of the priority class to bind to
 	PriorityClassName string                 `json:"priorityClassName,omitempty"`
-	Resource          corev1.ResourceList    `json:"resource,omitempty"`
+	Resources         corev1.ResourceList    `json:"resources,omitempty"`
 	JobRef            corev1.ObjectReference `json:"jobRef,omitempty"`
 }
 

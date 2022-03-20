@@ -22,8 +22,8 @@ import (
 )
 
 const (
-	SuspendAnnotation   string = "moirai.io/suspend"
-	QueueNameAnnotation string = "moirai.io/queue-name"
+	SuspendAnnotation string = "moirai.io/suspend"
+	QueueLabel        string = "moirai.io/queue"
 )
 
 // QueueSpec defines the desired state of Queue

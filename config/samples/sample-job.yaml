@@ -2,10 +2,13 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: sample-job
-  annotations:
-    moirai.io/queue-name: sample-queue
+  labels:
+    moirai.io/queue: sample-queue
 spec:
   template:
+    metadata:
+      labels:
+        moirai.io/queue-binding: sample-queuebinding
     spec:
       schedulerName: moirai-scheduler
       containers:

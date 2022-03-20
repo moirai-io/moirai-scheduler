@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/moirai-io/moirai-scheduler/pkg/internal"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/moirai-io/moirai-scheduler/pkg/internal"
+	"github.com/moirai-io/moirai-scheduler/pkg/manager"
 )
 
 const (
@@ -20,8 +22,9 @@ const (
 
 // Plugin is a scheduling plugin for Moirai.
 type Plugin struct {
-	moiraiClient     client.Client
-	moiraiCache      cache.Cache
+	client           client.Client
+	cache            cache.Cache
+	manager          *manager.MoiraiManager
 	frameworkHandler framework.Handle
 }
 
@@ -62,13 +65,21 @@ func New(obj runtime.Object, handle framework.Handle) (framework.Plugin, error) 
 		return nil, err
 	}
 
+	moiraiManager := manager.NewMoiraiManager(
+		handle.ClientSet(),
+		moiraiCache,
+	)
+
 	return &Plugin{
-		moiraiClient:     moiraiClient,
-		moiraiCache:      moiraiCache,
+		client:           moiraiClient,
+		cache:            moiraiCache,
+		manager:          moiraiManager,
 		frameworkHandler: handle,
 	}, nil
 }
 
+// EventsToRegister returns a series of possible events that may cause a Pod
+// failed by this plugin schedulable.
 func (p *Plugin) EventsToRegister() []framework.ClusterEvent {
 	return []framework.ClusterEvent{
 		{Resource: framework.Pod, ActionType: framework.All},
