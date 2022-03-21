@@ -26,7 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
 )
 
 // QueueBindingReconciler reconciles a QueueBinding object
@@ -44,7 +44,7 @@ type QueueBindingReconciler struct {
 func (r *QueueBindingReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 
-	var queueBindingObj schedulingv1alpha1.QueueBinding
+	var queueBindingObj moirai.QueueBinding
 	if err := r.Get(ctx, req.NamespacedName, &queueBindingObj); err != nil {
 		log.Error(err, "unable to fetch QueueBinding")
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
@@ -63,7 +63,6 @@ func (r *QueueBindingReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 
-	// update status
 	if err := r.Status().Update(ctx, &queueBindingObj); err != nil {
 		log.Error(err, "unable to update QueueBinding status")
 		return ctrl.Result{}, err
@@ -75,6 +74,6 @@ func (r *QueueBindingReconciler) Reconcile(ctx context.Context, req ctrl.Request
 // SetupWithManager sets up the controller with the Manager.
 func (r *QueueBindingReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&schedulingv1alpha1.QueueBinding{}).
+		For(&moirai.QueueBinding{}).
 		Complete(r)
 }

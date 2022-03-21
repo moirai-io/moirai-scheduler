@@ -11,7 +11,7 @@ import (
 	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 
-	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
 )
 
 // PreFilterExtensions is an interface that is included in plugins that allow specifying
@@ -33,7 +33,7 @@ func (p *Plugin) PreFilter(ctx context.Context, state *framework.CycleState, pod
 	}
 	// fetch pods according to the queue binding
 	_, err = p.frameworkHandler.SharedInformerFactory().Core().V1().Pods().Lister().List(
-		labels.SelectorFromSet(labels.Set{schedulingv1alpha1.QueueBindingLabel: queueBinding.Name}),
+		labels.SelectorFromSet(labels.Set{moirai.QueueBindingLabel: queueBinding.Name}),
 	)
 	if err != nil {
 		return framework.NewStatus(framework.Error, fmt.Sprintf("unable to list pod: %v", err))
@@ -47,8 +47,8 @@ func (p *Plugin) PreFilter(ctx context.Context, state *framework.CycleState, pod
 	for _, nodeInfo := range nodeInfoList {
 		nodeList = append(nodeList, nodeInfo.Node())
 	}
-	// FIXME:
-	p.manager.AnnotatePod(ctx, pod)
+
+	// resources := queueBinding.Spec.Resources.DeepCopy()
 
 	return framework.NewStatus(framework.Success, "")
 }
@@ -159,7 +159,7 @@ func (p *Plugin) Unreserve(ctx context.Context, state *framework.CycleState, pod
 	}
 	p.frameworkHandler.IterateOverWaitingPods(func(waitingPod framework.WaitingPod) {
 		waitingPodRef := waitingPod.GetPod()
-		if waitingPodRef.Namespace == pod.Namespace && waitingPodRef.Labels[schedulingv1alpha1.QueueBindingLabel] == queueBinding.Name {
+		if waitingPodRef.Namespace == pod.Namespace && waitingPodRef.Labels[moirai.QueueBindingLabel] == queueBinding.Name {
 			waitingPod.Reject(p.Name(), fmt.Sprintf("Pod %s is rejected in unreserve phase", pod.Name))
 		}
 	})

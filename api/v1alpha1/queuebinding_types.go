@@ -38,9 +38,10 @@ type QueueBindingSpec struct {
 	JobRef            corev1.ObjectReference `json:"jobRef,omitempty"`
 }
 
+// QueueBindingConditionType defines the condition type of QueueBinding
 type QueueBindingConditionType string
 
-// QueueBindingStatus defines the observed state of QueueBinding
+// QueueBindingCondition defines the observed conditions of QueueBinding
 type QueueBindingCondition struct {
 	Type               QueueBindingConditionType `json:"type,omitempty"`
 	Status             corev1.ConditionStatus    `json:"status,omitempty"`
@@ -49,19 +50,29 @@ type QueueBindingCondition struct {
 	Message            string                    `json:"message,omitempty"`
 }
 
-// QueueBindingStatus defines the observed phase of QueueBinding
+// QueueBindingPhaseType defines the observed phase of QueueBinding
 type QueueBindingPhaseType string
 
 const (
-	Pending   QueueBindingPhaseType = "Pending"
-	Scheduled QueueBindingPhaseType = "Scheduled"
-	Failed    QueueBindingPhaseType = "Failed"
+	// QueueBindingPhaseTypeReady represents the phase that the QueueBinding is ready
+	QueueBindingPhaseTypeReady QueueBindingPhaseType = "Ready"
+	// QueueBindingPhaseTypePending represents the phase that one of the Pod belonging to the QueueBinding is scheduled
+	QueueBindingPhaseTypePending QueueBindingPhaseType = "Pending"
+	// QueueBindingPhaseTypeScheduled represents the phase that all the Pods belonging to the QueueBinding is scheduled
+	QueueBindingPhaseTypeScheduled QueueBindingPhaseType = "Scheduled"
+	// QueueBindingPhaseTypeFailed represents the phase that one of the Pod belonging to the QueueBinding is failed to schedule
+	QueueBindingPhaseTypeFailed QueueBindingPhaseType = "Failed"
 )
 
 // QueueBindingStatus defines the observed state of QueueBinding
 type QueueBindingStatus struct {
-	Phase      QueueBindingPhaseType   `json:"phase,omitempty"`
-	Scheduled  bool                    `json:"scheduled,omitempty"`
+	// Phase represents the current phase of the QueueBinding
+	Phase QueueBindingPhaseType `json:"phase,omitempty"`
+	// Pending represents the number of pending Pods in the QueueBinding
+	Pending int32 `json:"pending,omitempty"`
+	// Scheduled represents the number of scheduled Pods in the QueueBinding
+	Scheduled int32 `json:"scheduled,omitempty"`
+	// Conditions represents the current conditions of the QueueBinding
 	Conditions []QueueBindingCondition `json:"conditions,omitempty"`
 }
 

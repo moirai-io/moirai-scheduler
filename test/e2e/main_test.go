@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/klog/v2"
@@ -21,7 +21,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	utilruntime.Must(schedulingv1alpha1.AddToScheme(scheme.Scheme))
+	utilruntime.Must(moirai.AddToScheme(scheme.Scheme))
 
 	testenv = env.NewWithConfig(envconf.New())
 	// Create KinD Cluster

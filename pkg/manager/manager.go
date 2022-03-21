@@ -2,19 +2,16 @@ package manager
 
 import (
 	"context"
-	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/kubernetes/pkg/scheduler/framework"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 
-	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
 )
 
 type Manager interface {
-	GetQueueBinding(pod *corev1.Pod) (*schedulingv1alpha1.QueueBinding, error)
+	GetQueueBinding(pod *corev1.Pod) (*moirai.QueueBinding, error)
 	AnnotatePod(ctx context.Context, pod *corev1.Pod)
 }
 
@@ -28,25 +25,4 @@ func NewMoiraiManager(client kubernetes.Interface, moiraiCache cache.Cache) *Moi
 		client:      client,
 		moiraiCache: moiraiCache,
 	}
-}
-
-// GetQueueBinding returns the queue binding of the specified pod
-func (m *MoiraiManager) GetQueueBinding(ctx context.Context, pod *corev1.Pod) (*schedulingv1alpha1.QueueBinding, error) {
-	queueBindingLabel := pod.Labels[schedulingv1alpha1.QueueBindingLabel]
-	if len(queueBindingLabel) == 0 {
-		return nil, fmt.Errorf("unable to fetch the QueueBinding label of the pod")
-	}
-
-	var queueBinding schedulingv1alpha1.QueueBinding
-	err := m.moiraiCache.Get(ctx, types.NamespacedName{Namespace: pod.Namespace, Name: queueBindingLabel}, &queueBinding)
-	if err != nil {
-		return nil, fmt.Errorf("unable to fetch QueueBinding %s", queueBindingLabel)
-	}
-
-	return &queueBinding, nil
-}
-
-// GetNodeAvaliableResource returns the available resource of the node
-func (m *MoiraiManager) GetNodeAvaliableResource() *framework.Resource {
-	return nil
 }

@@ -11,7 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
 	"github.com/moirai-io/moirai-scheduler/pkg/internal"
 )
 
@@ -56,12 +56,12 @@ func newCmdCreate() *cobra.Command {
 				return err
 			}
 
-			queue := &schedulingv1alpha1.Queue{
+			queue := &moirai.Queue{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: Namespace,
 					Name:      opts.Name,
 				},
-				Spec: schedulingv1alpha1.QueueSpec{
+				Spec: moirai.QueueSpec{
 					Capacity: v1.ResourceList{
 						v1.ResourceCPU:    resource.MustParse(opts.CPU),
 						v1.ResourceMemory: resource.MustParse(opts.Memory),
@@ -107,7 +107,7 @@ func newCmdGet() *cobra.Command {
 				return err
 			}
 
-			queue := &schedulingv1alpha1.Queue{}
+			queue := &moirai.Queue{}
 			err = c.Get(context.Background(), client.ObjectKey{
 				Namespace: Namespace,
 				Name:      opts.Name,

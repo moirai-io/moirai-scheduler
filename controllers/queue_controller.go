@@ -26,7 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	schedulingv1alpha1 "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
 )
 
 // QueueReconciler reconciles a Queue object
@@ -48,7 +48,7 @@ type QueueReconciler struct {
 func (r *QueueReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 
-	var queueObj schedulingv1alpha1.Queue
+	var queueObj moirai.Queue
 	if err := r.Get(ctx, req.NamespacedName, &queueObj); err != nil {
 		log.Error(err, "unable to fetch Queue")
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
@@ -58,7 +58,6 @@ func (r *QueueReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	}
 	log.V(3).Info("Reconciling Queue")
 
-	// update status
 	if err := r.Status().Update(ctx, &queueObj); err != nil {
 		log.Error(err, "unable to update Queue status")
 		return ctrl.Result{}, err
@@ -70,6 +69,6 @@ func (r *QueueReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 // SetupWithManager sets up the controller with the Manager.
 func (r *QueueReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&schedulingv1alpha1.Queue{}).
+		For(&moirai.Queue{}).
 		Complete(r)
 }

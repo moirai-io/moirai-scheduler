@@ -47,7 +47,9 @@ type QueueCondition struct {
 type QueueState string
 
 const (
-	QueueStateReady       QueueState = "Ready"
+	// QueueStateReady represents the state that the Queue is ready
+	QueueStateReady QueueState = "Ready"
+	// QueueStatePending represents the state that that the Queue is unavailable
 	QueueStateUnavailable QueueState = "Unavailable"
 )
 
