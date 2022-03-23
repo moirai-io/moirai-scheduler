@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/klog/v2"
@@ -23,11 +24,15 @@ const (
 
 // Plugin is a scheduling plugin for Moirai.
 type Plugin struct {
+	sync.RWMutex
 	client           client.Client
 	cache            cache.Cache
 	manager          *manager.MoiraiManager
 	frameworkHandler framework.Handle
 }
+
+// queuesort
+var _ framework.QueueSortPlugin = &Plugin{}
 
 // scheduling cycle
 var _ framework.PreFilterPlugin = &Plugin{}
