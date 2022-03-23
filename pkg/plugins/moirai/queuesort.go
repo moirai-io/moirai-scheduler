@@ -1,4 +1,4 @@
-package scheduler
+package moirai
 
 import (
 	corev1helpers "k8s.io/component-helpers/scheduling/corev1"

@@ -1,4 +1,4 @@
-package scheduler
+package moirai
 
 import (
 	"context"
@@ -13,8 +13,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
-	"github.com/moirai-io/moirai-scheduler/pkg/internal"
-	"github.com/moirai-io/moirai-scheduler/pkg/manager"
+	"github.com/moirai-io/moirai-scheduler/pkg/plugins/moirai/internal"
+	"github.com/moirai-io/moirai-scheduler/pkg/plugins/moirai/manager"
 )
 
 const (
