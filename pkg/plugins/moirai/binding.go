@@ -20,6 +20,7 @@ func (p *Plugin) PostBind(ctx context.Context, state *framework.CycleState, pod 
 	queueBinding, err := p.manager.GetQueueBinding(ctx, pod)
 	if err != nil {
 		klog.Errorf("unable to get QueueBinding: %v", err)
+		return
 	}
 	queueBindingCopy := queueBinding.DeepCopy()
 

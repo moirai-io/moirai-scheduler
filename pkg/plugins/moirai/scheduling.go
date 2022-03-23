@@ -23,7 +23,8 @@ func (p *Plugin) PreFilterExtensions() framework.PreFilterExtensions {
 
 // PreFilterPlugin
 
-// PreFilter ...
+// PreFilter is called at the beginning of the scheduling cycle. All PreFilter
+// plugins must return success or the pod will be rejected.
 func (p *Plugin) PreFilter(ctx context.Context, state *framework.CycleState, pod *corev1.Pod) *framework.Status {
 	klog.V(5).InfoS("PreFilter extension point", "pod", klog.KObj(pod))
 
@@ -55,7 +56,7 @@ func (p *Plugin) PreFilter(ctx context.Context, state *framework.CycleState, pod
 
 // Filter Plugin
 
-// Filter ...
+// Filter is called by the scheduling framework.
 func (p *Plugin) Filter(ctx context.Context, state *framework.CycleState, pod *corev1.Pod, nodeInfo *framework.NodeInfo) *framework.Status {
 	klog.V(5).InfoS("Filter extension point", "pod", klog.KObj(pod))
 
@@ -69,7 +70,7 @@ func (p *Plugin) Filter(ctx context.Context, state *framework.CycleState, pod *c
 
 // PostFilter Plugin
 
-// PostFilter ...
+// PostFilter is called by the scheduling framework.
 // Preemption
 func (p *Plugin) PostFilter(ctx context.Context, state *framework.CycleState, pod *corev1.Pod, filteredNodeStatusMap framework.NodeToStatusMap) (*framework.PostFilterResult, *framework.Status) {
 	klog.V(5).InfoS("PostFilter extension point", "pod", klog.KObj(pod))
@@ -79,7 +80,9 @@ func (p *Plugin) PostFilter(ctx context.Context, state *framework.CycleState, po
 
 // PreScore Plugin
 
-// PreScore ...
+// PreScore is called by the scheduling framework after a list of nodes
+// passed the filtering phase. All prescore plugins must return success or
+// the pod will be rejected
 func (p *Plugin) PreScore(ctx context.Context, state *framework.CycleState, pod *corev1.Pod, nodes []*corev1.Node) *framework.Status {
 	klog.V(5).InfoS("PreScore extension point", "pod", klog.KObj(pod))
 
@@ -88,7 +91,9 @@ func (p *Plugin) PreScore(ctx context.Context, state *framework.CycleState, pod 
 
 // Score Plugin
 
-// Score ...
+// Score is called on each filtered node. It must return success and an integer
+// indicating the rank of the node. All scoring plugins must return success or
+// the pod will be rejected.
 func (p *Plugin) Score(ctx context.Context, state *framework.CycleState, pod *corev1.Pod, nodeName string) (int64, *framework.Status) {
 	klog.V(5).InfoS("Score extension point", "pod", klog.KObj(pod))
 
@@ -156,7 +161,10 @@ func (p *Plugin) Unreserve(ctx context.Context, state *framework.CycleState, pod
 	queueBinding, err := p.manager.GetQueueBinding(ctx, pod)
 	if err != nil {
 		klog.Errorf("unable to get QueueBinding: %v", err)
+		return
 	}
+
+	// Iterate waiting pods to reject pods belonging to the same queue binding to be scheduled
 	p.frameworkHandler.IterateOverWaitingPods(func(waitingPod framework.WaitingPod) {
 		waitingPodRef := waitingPod.GetPod()
 		if waitingPodRef.Namespace == pod.Namespace && waitingPodRef.Labels[moirai.QueueBindingLabel] == queueBinding.Name {
@@ -171,6 +179,29 @@ func (p *Plugin) Unreserve(ctx context.Context, state *framework.CycleState, pod
 // plugins are used to prevent or delay the binding of a Pod.
 func (p *Plugin) Permit(ctx context.Context, state *framework.CycleState, pod *corev1.Pod, nodeName string) (*framework.Status, time.Duration) {
 	klog.V(5).InfoS("Permit extension point", "pod", klog.KObj(pod))
+
+	queueBinding, err := p.manager.GetQueueBinding(ctx, pod)
+	if err != nil {
+		klog.Errorf("unable to get QueueBinding: %v", err)
+		return framework.NewStatus(framework.Unschedulable, fmt.Sprintf("unable to get QueueBinding: %v", err)), 0
+	}
+	if queueBinding.Name == "" {
+		return framework.NewStatus(framework.Success, ""), 0
+	}
+
+	if queueBinding.Status.Pending > 0 {
+		// FIXME: Use configuration instead of hardcoded value
+		return framework.NewStatus(framework.Wait, ""), time.Second * 30
+	}
+
+	// Iterate waiting pods to allow pods belonging to the same queue binding to be scheduled
+	p.frameworkHandler.IterateOverWaitingPods(func(waitingPod framework.WaitingPod) {
+		waitingPodRef := waitingPod.GetPod()
+		if waitingPodRef.Namespace == pod.Namespace && waitingPodRef.Labels[moirai.QueueBindingLabel] == queueBinding.Name {
+			klog.V(3).InfoS("Allowed in permit phase", "pod", klog.KObj(waitingPodRef))
+			waitingPod.Allow(p.Name())
+		}
+	})
 
 	return framework.NewStatus(framework.Success, ""), 0
 }
