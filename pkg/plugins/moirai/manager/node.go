@@ -5,6 +5,7 @@ import (
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 )
 
+// GetAvailableNodeResources returns the available resources of the node
 func (m *MoiraiManager) GetAvailableNodeResources(nodeInfo *framework.NodeInfo, queueBindingName string) {
 	_ = nodeInfo.Clone()
 }

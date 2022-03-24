@@ -114,8 +114,10 @@ spec:
             description: QueueBindingStatus defines the observed state of QueueBinding
             properties:
               conditions:
+                description: Conditions represents the current conditions of the QueueBinding
                 items:
-                  description: QueueBindingStatus defines the observed state of QueueBinding
+                  description: QueueBindingCondition defines the observed conditions
+                    of QueueBinding
                   properties:
                     lastTransitionTime:
                       format: date-time
@@ -127,9 +129,24 @@ spec:
                     status:
                       type: string
                     type:
+                      description: QueueBindingConditionType defines the condition
+                        type of QueueBinding
                       type: string
                   type: object
                 type: array
+              pending:
+                description: Pending represents the number of pending Pods in the
+                  QueueBinding
+                format: int32
+                type: integer
+              phase:
+                description: Phase represents the current phase of the QueueBinding
+                type: string
+              scheduled:
+                description: Scheduled represents the number of scheduled Pods in
+                  the QueueBinding
+                format: int32
+                type: integer
             type: object
         type: object
     served: true

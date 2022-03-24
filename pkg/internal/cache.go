@@ -7,7 +7,9 @@ import (
 
 // NewCache returns a new cache for Moirai
 func NewCache() (cache.Cache, error) {
-	c, err := cache.New(config.GetConfigOrDie(), cache.Options{Scheme: scheme})
+	c, err := cache.New(config.GetConfigOrDie(), cache.Options{
+		Scheme: scheme,
+	})
 	if err != nil {
 		return nil, err
 	}

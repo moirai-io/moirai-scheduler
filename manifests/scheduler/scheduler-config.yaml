@@ -5,8 +5,17 @@ leaderElection:
 clientConnection:
   kubeconfig: /Users/rudeigerc/.kube/config
 profiles:
-  - schedulerName: moirai-scheduler
-    plugins:
-      multiPoint:
-        enabled:
-        - name: moirai
+- schedulerName: moirai-scheduler
+  plugins:
+    multiPoint:
+      enabled:
+      - name: moirai
+    queueSort:
+      enabled:
+      - name: moirai
+      disabled:
+      - name: '*'
+  pluginConfig:
+  - name: moirai
+    args:
+      name: moirai

@@ -37,7 +37,7 @@ func (p *Plugin) PreFilter(ctx context.Context, state *framework.CycleState, pod
 		labels.SelectorFromSet(labels.Set{moirai.QueueBindingLabel: queueBinding.Name}),
 	)
 	if err != nil {
-		return framework.NewStatus(framework.Error, fmt.Sprintf("unable to list pod: %v", err))
+		return framework.NewStatus(framework.Error, fmt.Sprintf("unable to list pods in QueueBinding %s: %v", queueBinding.Name, err))
 	}
 
 	nodeInfoList, err := p.frameworkHandler.SnapshotSharedLister().NodeInfos().List()
@@ -51,6 +51,8 @@ func (p *Plugin) PreFilter(ctx context.Context, state *framework.CycleState, pod
 
 	// resources := queueBinding.Spec.Resources.DeepCopy()
 
+	// FIXME:
+	state.Write("", NewStateData(queueBinding.Name))
 	return framework.NewStatus(framework.Success, "")
 }
 
@@ -63,6 +65,11 @@ func (p *Plugin) Filter(ctx context.Context, state *framework.CycleState, pod *c
 	node := nodeInfo.Node()
 	if node == nil {
 		return framework.AsStatus(fmt.Errorf("node not found"))
+	}
+
+	_, err := p.manager.GetQueueBinding(ctx, pod)
+	if err != nil {
+		return framework.NewStatus(framework.Error, fmt.Sprintf("unable to get QueueBinding: %v", err))
 	}
 
 	return framework.NewStatus(framework.Success, "")
@@ -183,7 +190,7 @@ func (p *Plugin) Permit(ctx context.Context, state *framework.CycleState, pod *c
 	queueBinding, err := p.manager.GetQueueBinding(ctx, pod)
 	if err != nil {
 		klog.Errorf("unable to get QueueBinding: %v", err)
-		return framework.NewStatus(framework.Unschedulable, fmt.Sprintf("unable to get QueueBinding: %v", err)), 0
+		return framework.NewStatus(framework.UnschedulableAndUnresolvable, fmt.Sprintf("unable to get QueueBinding: %v", err)), 0
 	}
 	if queueBinding.Name == "" {
 		return framework.NewStatus(framework.Success, ""), 0
