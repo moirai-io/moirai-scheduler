@@ -25,9 +25,6 @@ const (
 	QueueBindingLabel string = "moirai.io/queue-binding"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // QueueBindingSpec defines the desired state of QueueBinding
 type QueueBindingSpec struct {
 	// Queue is the name of the queue to bind to

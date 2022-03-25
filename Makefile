@@ -90,7 +90,7 @@ run: manifests generate fmt vet ## Run a controller from your host.
 
 .PHONY: run-scheduler
 run-scheduler: manifests generate fmt vet ## Run a scheduler from your host.
-	go run ${LDFLAGS} ./cmd/scheduler/main.go --config manifests/scheduler/scheduler-config.yaml
+	go run ${LDFLAGS} ./cmd/scheduler/main.go --config manifests/scheduler/scheduler-config.yaml -v 5
 
 .PHONY: docker-build
 docker-build: test ## Build docker image with the manager.

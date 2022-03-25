@@ -12,9 +12,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
-	"github.com/moirai-io/moirai-scheduler/pkg/plugins/moirai/internal"
+	configv1beta3 "github.com/moirai-io/moirai-scheduler/apis/config/v1beta3"
+	"github.com/moirai-io/moirai-scheduler/pkg/internal"
 	"github.com/moirai-io/moirai-scheduler/pkg/plugins/moirai/manager"
+	"github.com/moirai-io/moirai-scheduler/pkg/utils"
 )
 
 const (
@@ -57,7 +58,16 @@ func (p *Plugin) Name() string {
 
 // New initializes a new plugin and returns it.
 func New(obj runtime.Object, handle framework.Handle) (framework.Plugin, error) {
-	klog.Info("Creating new moirai plugin")
+	klog.Info("Creating new Moirai plugin")
+
+	// FIXME: parse args directly
+	// args, _ := obj.(*configv1beta3.MoiraiArgs)
+	var args configv1beta3.MoiraiArgs
+	err := utils.ParsePluginArgs(obj, &args)
+	if err != nil {
+		return nil, err
+	}
+	klog.V(5).InfoS("Successfully parse args", "MoiraiArgs", args)
 
 	moiraiClient, err := internal.NewClient()
 	if err != nil {
@@ -97,10 +107,7 @@ func New(obj runtime.Object, handle framework.Handle) (framework.Plugin, error) 
 // EventsToRegister returns a series of possible events that may cause a Pod
 // failed by this plugin schedulable.
 func (p *Plugin) EventsToRegister() []framework.ClusterEvent {
-	queueGVK := moirai.GroupVersion.WithKind("queue").String()
-
 	return []framework.ClusterEvent{
 		{Resource: framework.Pod, ActionType: framework.Add},
-		{Resource: framework.GVK(queueGVK), ActionType: framework.All},
 	}
 }
