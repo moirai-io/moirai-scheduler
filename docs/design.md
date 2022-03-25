@@ -8,7 +8,7 @@
 
 ## APIs
 
-`apis/v1alpha1`
+`apis/scheduling/v1alpha1`
 
 ### Queue
 

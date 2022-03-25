@@ -11,7 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
 	"github.com/moirai-io/moirai-scheduler/pkg/internal"
 )
 

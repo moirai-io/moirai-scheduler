@@ -7,7 +7,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 
-	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
 )
 
 // Manager is an interface for managing scheduler plugin.

@@ -26,7 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
 )
 
 // QueueBindingReconciler reconciles a QueueBinding object

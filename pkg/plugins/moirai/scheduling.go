@@ -11,7 +11,7 @@ import (
 	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 
-	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
+	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
 )
 
 // PreFilterExtensions is an interface that is included in plugins that allow specifying

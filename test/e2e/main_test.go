@@ -5,14 +5,14 @@ import (
 	"os"
 	"testing"
 
-	moirai "github.com/moirai-io/moirai-scheduler/api/v1alpha1"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/klog/v2"
-
 	"sigs.k8s.io/e2e-framework/pkg/env"
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
 	"sigs.k8s.io/e2e-framework/pkg/envfuncs"
+
+	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
 )
 
 var (
