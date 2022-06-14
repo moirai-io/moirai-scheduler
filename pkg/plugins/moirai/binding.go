@@ -17,7 +17,7 @@ import (
 func (p *Plugin) PostBind(ctx context.Context, state *framework.CycleState, pod *corev1.Pod, nodeName string) {
 	klog.V(5).InfoS("PostBind extension point", "pod", klog.KObj(pod))
 
-	queueBinding, err := p.manager.GetQueueBinding(ctx, pod)
+	queueBinding, err := p.moiraiManager.GetQueueBinding(ctx, pod)
 	if err != nil {
 		klog.Errorf("unable to get QueueBinding: %v", err)
 		return
@@ -36,7 +36,7 @@ func (p *Plugin) PostBind(ctx context.Context, state *framework.CycleState, pod 
 	}
 
 	if !equality.Semantic.DeepEqual(queueBindingCopy.Status, queueBindingCopy.Status) {
-		err := p.client.Status().Update(ctx, queueBindingCopy)
+		err := p.moiraiClient.Status().Update(ctx, queueBindingCopy)
 		klog.Errorf("unable to update the status of QueueBinding: %v", err)
 	}
 }

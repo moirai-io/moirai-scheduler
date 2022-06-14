@@ -26,9 +26,9 @@ const (
 // Plugin is a scheduling plugin for Moirai.
 type Plugin struct {
 	sync.RWMutex
-	client           client.Client
-	cache            cache.Cache
-	manager          *manager.MoiraiManager
+	moiraiClient     client.Client
+	moiraiCache      cache.Cache
+	moiraiManager    *manager.MoiraiManager
 	frameworkHandler framework.Handle
 }
 
@@ -97,9 +97,9 @@ func New(obj runtime.Object, handle framework.Handle) (framework.Plugin, error) 
 	)
 
 	return &Plugin{
-		client:           moiraiClient,
-		cache:            moiraiCache,
-		manager:          moiraiManager,
+		moiraiClient:     moiraiClient,
+		moiraiCache:      moiraiCache,
+		moiraiManager:    moiraiManager,
 		frameworkHandler: handle,
 	}, nil
 }

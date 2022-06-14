@@ -16,5 +16,5 @@ func (m *MoiraiManager) AnnotatePod(ctx context.Context, pod *corev1.Pod) {
 	// FIXME:
 	annotations["test"] = "test"
 	pod.Annotations = annotations
-	m.client.CoreV1().Pods(pod.Namespace).Update(ctx, pod, metav1.UpdateOptions{})
+	m.KubeClient.CoreV1().Pods(pod.Namespace).Update(ctx, pod, metav1.UpdateOptions{})
 }

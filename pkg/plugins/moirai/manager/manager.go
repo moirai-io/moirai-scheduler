@@ -12,20 +12,23 @@ import (
 
 // Manager is an interface for managing scheduler plugin.
 type Manager interface {
-	GetQueueBinding(pod *corev1.Pod) (*moirai.QueueBinding, error)
+	// Pod
 	AnnotatePod(ctx context.Context, pod *corev1.Pod)
+	// QueueBinding
+	GetQueueBinding(pod *corev1.Pod) (*moirai.QueueBinding, error)
+	GetQueueBindingListFromQueue(ctx context.Context, queue string) (*moirai.QueueBindingList, error)
 }
 
 // MoiraiManager is a concrete implementation of Manager interface for Moirai.
 type MoiraiManager struct {
-	client      kubernetes.Interface
-	moiraiCache cache.Cache
+	KubeClient  kubernetes.Interface
+	MoiraiCache cache.Cache
 }
 
 // NewMoiraiManager returns a new MoiraiManager.
 func NewMoiraiManager(client kubernetes.Interface, moiraiCache cache.Cache) *MoiraiManager {
 	return &MoiraiManager{
-		client:      client,
-		moiraiCache: moiraiCache,
+		KubeClient:  client,
+		MoiraiCache: moiraiCache,
 	}
 }

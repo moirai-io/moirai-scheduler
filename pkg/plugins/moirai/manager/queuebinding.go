@@ -28,7 +28,7 @@ func (m *MoiraiManager) GetQueueBinding(ctx context.Context, pod *corev1.Pod) (*
 // GetQueueBindingByName returns the queue binding of the specified name
 func (m *MoiraiManager) GetQueueBindingByName(ctx context.Context, namespace string, name string) (*moirai.QueueBinding, error) {
 	var queueBinding moirai.QueueBinding
-	err := m.moiraiCache.Get(ctx, types.NamespacedName{Namespace: namespace, Name: name}, &queueBinding)
+	err := m.MoiraiCache.Get(ctx, types.NamespacedName{Namespace: namespace, Name: name}, &queueBinding)
 	if err != nil {
 		return nil, fmt.Errorf("unable to fetch QueueBinding %s", name)
 	}

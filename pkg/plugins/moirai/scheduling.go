@@ -12,6 +12,7 @@ import (
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 
 	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
+	"github.com/moirai-io/moirai-scheduler/pkg/plugins/moirai/preemption"
 )
 
 // PreFilterExtensions is an interface that is included in plugins that allow specifying
@@ -28,7 +29,7 @@ func (p *Plugin) PreFilterExtensions() framework.PreFilterExtensions {
 func (p *Plugin) PreFilter(ctx context.Context, state *framework.CycleState, pod *corev1.Pod) *framework.Status {
 	klog.V(5).InfoS("PreFilter extension point", "pod", klog.KObj(pod))
 
-	queueBinding, err := p.manager.GetQueueBinding(ctx, pod)
+	queueBinding, err := p.moiraiManager.GetQueueBinding(ctx, pod)
 	if err != nil {
 		return framework.NewStatus(framework.Error, fmt.Sprintf("unable to get QueueBinding: %v", err))
 	}
@@ -52,7 +53,7 @@ func (p *Plugin) PreFilter(ctx context.Context, state *framework.CycleState, pod
 	// resources := queueBinding.Spec.Resources.DeepCopy()
 
 	// FIXME:
-	state.Write("", NewStateData(queueBinding.Name))
+	state.Write("", NewStateData(queueBinding.Name, ""))
 	return framework.NewStatus(framework.Success, "")
 }
 
@@ -67,7 +68,7 @@ func (p *Plugin) Filter(ctx context.Context, state *framework.CycleState, pod *c
 		return framework.AsStatus(fmt.Errorf("node not found"))
 	}
 
-	_, err := p.manager.GetQueueBinding(ctx, pod)
+	_, err := p.moiraiManager.GetQueueBinding(ctx, pod)
 	if err != nil {
 		return framework.NewStatus(framework.Error, fmt.Sprintf("unable to get QueueBinding: %v", err))
 	}
@@ -82,7 +83,16 @@ func (p *Plugin) Filter(ctx context.Context, state *framework.CycleState, pod *c
 func (p *Plugin) PostFilter(ctx context.Context, state *framework.CycleState, pod *corev1.Pod, filteredNodeStatusMap framework.NodeToStatusMap) (*framework.PostFilterResult, *framework.Status) {
 	klog.V(5).InfoS("PostFilter extension point", "pod", klog.KObj(pod))
 
-	return nil, framework.NewStatus(framework.Success, "")
+	preemptor := preemption.NewPreemptor(
+		p.Name(),
+		p.frameworkHandler,
+		p.frameworkHandler.SharedInformerFactory().Core().V1().Pods().Lister(),
+		p.moiraiCache,
+	)
+
+	result, status := preemptor.Preempt(ctx, pod, filteredNodeStatusMap)
+
+	return result, status
 }
 
 // PreScore Plugin
@@ -165,7 +175,7 @@ func (p *Plugin) Reserve(ctx context.Context, state *framework.CycleState, pod *
 func (p *Plugin) Unreserve(ctx context.Context, state *framework.CycleState, pod *corev1.Pod, nodeName string) {
 	klog.V(5).InfoS("Unreserve extension point", "pod", klog.KObj(pod))
 
-	queueBinding, err := p.manager.GetQueueBinding(ctx, pod)
+	queueBinding, err := p.moiraiManager.GetQueueBinding(ctx, pod)
 	if err != nil {
 		klog.Errorf("unable to get QueueBinding: %v", err)
 		return
@@ -187,7 +197,7 @@ func (p *Plugin) Unreserve(ctx context.Context, state *framework.CycleState, pod
 func (p *Plugin) Permit(ctx context.Context, state *framework.CycleState, pod *corev1.Pod, nodeName string) (*framework.Status, time.Duration) {
 	klog.V(5).InfoS("Permit extension point", "pod", klog.KObj(pod))
 
-	queueBinding, err := p.manager.GetQueueBinding(ctx, pod)
+	queueBinding, err := p.moiraiManager.GetQueueBinding(ctx, pod)
 	if err != nil {
 		klog.Errorf("unable to get QueueBinding: %v", err)
 		return framework.NewStatus(framework.UnschedulableAndUnresolvable, fmt.Sprintf("unable to get QueueBinding: %v", err)), 0
