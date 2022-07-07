@@ -1,4 +1,4 @@
-package queue
+package job
 
 import (
 	"context"
@@ -6,13 +6,13 @@ import (
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/config"
 
-	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
 	"github.com/moirai-io/moirai-scheduler/pkg/cli/options"
 	"github.com/moirai-io/moirai-scheduler/pkg/cli/printer"
-	"github.com/moirai-io/moirai-scheduler/pkg/internal"
 )
 
 type describeOptions struct {
@@ -29,7 +29,7 @@ func newCmdDescribe(globalOpts *options.GlobalOptions) *cobra.Command {
 		Long:    `describe`,
 		Aliases: []string{"get"},
 		Example: heredoc.Doc(`
-			moiraictl queue describe my-queue
+			moiraictl job describe my-queue
 		`),
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
@@ -38,23 +38,28 @@ func newCmdDescribe(globalOpts *options.GlobalOptions) *cobra.Command {
 				opts.Name = args[0]
 			}
 
-			c, err := internal.NewClient()
+			c, err := client.New(config.GetConfigOrDie(), client.Options{})
 			if err != nil {
 				return err
 			}
 
-			queue := &unstructured.Unstructured{}
-			queue.SetGroupVersionKind(moirai.GroupVersion.WithKind("Queue"))
+			job := &unstructured.Unstructured{}
+			job.SetGroupVersionKind(schema.GroupVersionKind{
+				Group:   "batch",
+				Kind:    "Job",
+				Version: "v1",
+			})
 
 			err = c.Get(context.Background(), client.ObjectKey{
 				Namespace: globalOpts.Namespace,
 				Name:      opts.Name,
-			}, queue)
+			}, job)
+
 			if err != nil {
 				return err
 			}
 
-			return printer.PrintObject(cmd.OutOrStdout(), queue, f)
+			return printer.PrintObject(cmd.OutOrStdout(), job, f)
 		},
 	}
 

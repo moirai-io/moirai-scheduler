@@ -1,7 +1,8 @@
-package queue
+package queuebinding
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -15,46 +16,42 @@ import (
 	"github.com/moirai-io/moirai-scheduler/pkg/internal"
 )
 
-type describeOptions struct {
-	Name string
+type listOptions struct {
 }
 
-func newCmdDescribe(globalOpts *options.GlobalOptions) *cobra.Command {
+func newCmdList(globalOpts *options.GlobalOptions) *cobra.Command {
 	f := genericclioptions.NewPrintFlags("")
-	opts := describeOptions{}
+	_ = listOptions{}
 
 	cmd := &cobra.Command{
-		Use:     "describe [flags]",
-		Short:   "describe",
-		Long:    `describe`,
-		Aliases: []string{"get"},
+		Use:   "list [flags]",
+		Short: "list",
+		Long:  `list`,
 		Example: heredoc.Doc(`
-			moiraictl queue describe my-queue
+			moiraictl queuebinding list
 		`),
-		Args:         cobra.MaximumNArgs(1),
+		Args:         cobra.NoArgs,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) > 0 {
-				opts.Name = args[0]
-			}
-
 			c, err := internal.NewClient()
 			if err != nil {
 				return err
 			}
 
-			queue := &unstructured.Unstructured{}
-			queue.SetGroupVersionKind(moirai.GroupVersion.WithKind("Queue"))
+			queueBindingList := &unstructured.UnstructuredList{}
+			queueBindingList.SetGroupVersionKind(moirai.GroupVersion.WithKind("QueueBindingList"))
 
-			err = c.Get(context.Background(), client.ObjectKey{
-				Namespace: globalOpts.Namespace,
-				Name:      opts.Name,
-			}, queue)
+			err = c.List(context.Background(), queueBindingList, &client.ListOptions{})
 			if err != nil {
 				return err
 			}
 
-			return printer.PrintObject(cmd.OutOrStdout(), queue, f)
+			if len(queueBindingList.Items) == 0 {
+				fmt.Fprintln(cmd.OutOrStdout(), "No QueueBinding found.")
+				return nil
+			}
+
+			return printer.PrintObject(cmd.OutOrStdout(), queueBindingList, f)
 		},
 	}
 

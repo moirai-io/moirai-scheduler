@@ -1,4 +1,4 @@
-package queue
+package queuebinding
 
 import (
 	"context"
@@ -29,7 +29,7 @@ func newCmdDescribe(globalOpts *options.GlobalOptions) *cobra.Command {
 		Long:    `describe`,
 		Aliases: []string{"get"},
 		Example: heredoc.Doc(`
-			moiraictl queue describe my-queue
+			moiraictl queuebinding describe my-queue
 		`),
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
@@ -43,18 +43,18 @@ func newCmdDescribe(globalOpts *options.GlobalOptions) *cobra.Command {
 				return err
 			}
 
-			queue := &unstructured.Unstructured{}
-			queue.SetGroupVersionKind(moirai.GroupVersion.WithKind("Queue"))
+			queueBinding := &unstructured.Unstructured{}
+			queueBinding.SetGroupVersionKind(moirai.GroupVersion.WithKind("QueueBinding"))
 
 			err = c.Get(context.Background(), client.ObjectKey{
 				Namespace: globalOpts.Namespace,
 				Name:      opts.Name,
-			}, queue)
+			}, queueBinding)
 			if err != nil {
 				return err
 			}
 
-			return printer.PrintObject(cmd.OutOrStdout(), queue, f)
+			return printer.PrintObject(cmd.OutOrStdout(), queueBinding, f)
 		},
 	}
 

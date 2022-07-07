@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/moirai-io/moirai-scheduler/pkg/cli/job"
 	"github.com/moirai-io/moirai-scheduler/pkg/cli/options"
 	"github.com/moirai-io/moirai-scheduler/pkg/cli/queue"
 	"github.com/moirai-io/moirai-scheduler/pkg/cli/queuebinding"
@@ -26,6 +27,7 @@ func NewCmdRoot() *cobra.Command {
 	cmd.AddCommand(queue.NewCmdQueue(opts))
 	cmd.AddCommand(queuebinding.NewCmdQueueBinding(opts))
 	cmd.AddCommand(version.NewCmdVersion(opts))
+	cmd.AddCommand(job.NewCmdJob(opts))
 
 	return cmd
 }

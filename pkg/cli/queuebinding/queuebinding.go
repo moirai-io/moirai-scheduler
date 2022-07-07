@@ -12,8 +12,11 @@ func NewCmdQueueBinding(globalOpts *options.GlobalOptions) *cobra.Command {
 		Use:       "queuebinding <subcommand> [flags]",
 		Short:     "queuebinding",
 		Long:      `queuebinding`,
-		ValidArgs: []string{"create", "get"},
+		ValidArgs: []string{"create", "describe", "list"},
 	}
 
+	cmd.AddCommand(newCmdCreate(globalOpts))
+	cmd.AddCommand(newCmdDescribe(globalOpts))
+	cmd.AddCommand(newCmdList(globalOpts))
 	return cmd
 }
