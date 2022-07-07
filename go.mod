@@ -18,7 +18,7 @@ require (
 	k8s.io/kube-scheduler v0.23.3
 	k8s.io/kubernetes v1.23.3
 	sigs.k8s.io/controller-runtime v0.11.1
-	sigs.k8s.io/e2e-framework v0.0.6
+	sigs.k8s.io/e2e-framework v0.0.7
 )
 
 require (
@@ -56,8 +56,8 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/btree v1.0.1 // indirect
-	github.com/google/go-cmp v0.5.5 // indirect
-	github.com/google/gofuzz v1.1.0 // indirect
+	github.com/google/go-cmp v0.5.6 // indirect
+	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect
@@ -111,7 +111,7 @@ require (
 	go.uber.org/zap v1.19.1 // indirect
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
 	golang.org/x/net v0.0.0-20211209124913-491a49abca63 // indirect
-	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f // indirect
+	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20211029165221-6e7872819dc8 // indirect
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect

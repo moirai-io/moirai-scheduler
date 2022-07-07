@@ -66,9 +66,14 @@ ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
 test: manifests generate fmt vet envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./pkg/... -coverprofile cover.out
 
+E2ETEST_ASSETS_DIR=$(shell pwd)/testdir
 .PHONY: e2e-test
-e2e-test: ## Run e2e tests.
-	IMG=${IMG} go test -tags=e2e -v ./test/e2e
+e2e-test: kustomize ## Run e2e tests.
+	mkdir -p $(E2ETEST_ASSETS_DIR)
+	$(KUSTOMIZE) build config/crd > ${E2ETEST_ASSETS_DIR}/moirai-scheduler.crds.yaml
+	$(KUSTOMIZE) build config/default > ${E2ETEST_ASSETS_DIR}/moirai-scheduler.yaml
+	IMG=${IMG} E2ETEST_ASSETS_DIR=${E2ETEST_ASSETS_DIR} go test -tags=e2e -v ./test/e2e
+	@rm -rf ${E2ETEST_ASSETS_DIR}
 
 ##@ Build
 
