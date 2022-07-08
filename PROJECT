@@ -1,7 +1,6 @@
 domain: moirai.io
 layout:
 - go.kubebuilder.io/v3
-multigroup: true
 projectName: moirai
 repo: github.com/moirai-io/moirai-scheduler
 resources:

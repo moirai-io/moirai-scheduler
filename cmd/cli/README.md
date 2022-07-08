@@ -4,6 +4,8 @@ A command line tool for Moirai.
 
 ## Available Commands
 
+### Job
+
 ### Queue
 
 #### Create
@@ -11,3 +13,5 @@ A command line tool for Moirai.
 ```shell
 $ moiraictl queue create my-queue
 ```
+
+### QueueBinding
