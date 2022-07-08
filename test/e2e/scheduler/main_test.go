@@ -1,4 +1,4 @@
-package e2e
+package scheduler
 
 import (
 	"os"
@@ -24,10 +24,10 @@ func TestMain(m *testing.M) {
 
 	testEnv = env.New()
 	kindClusterName := envconf.RandomName("moirai", 16)
-	namespace := envconf.RandomName("moirai-ns", 16)
+	namespace := envconf.RandomName("moirai-scheduler-ns", 16)
 
 	testEnv.Setup(
-		envfuncs.CreateKindClusterWithConfig(kindClusterName, "kindest/node:v1.22.5", "kind-config.yaml"),
+		envfuncs.CreateKindClusterWithConfig(kindClusterName, "kindest/node:v1.24.0", "kind-config.yaml"),
 		envfuncs.CreateNamespace(namespace),
 		// envfuncs.LoadDockerImageToCluster(kindClusterName, image),
 		envfuncs.SetupCRDs(e2eTestAssetsDir, "moirai-scheduler.crds.yaml"),

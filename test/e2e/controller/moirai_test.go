@@ -1,4 +1,4 @@
-package e2e
+package controller
 
 import (
 	"context"
@@ -23,7 +23,7 @@ func TestCRDSetup(t *testing.T) {
 			moirai.AddToScheme(r.GetScheme())
 			r.WithNamespace(c.Namespace())
 			decoder.DecodeEachFile(
-				ctx, os.DirFS("../../config/samples"), "scheduling_v1alpha1_queue.yaml",
+				ctx, os.DirFS("testdata"), "scheduling_v1alpha1_queue.yaml",
 				decoder.CreateHandler(r),
 				decoder.MutateNamespace(c.Namespace()),
 			)

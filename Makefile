@@ -1,14 +1,9 @@
 
 # Image URL to use all building/pushing image targets
+CONTROLLER_IMG ?= moirai-controller:latest
 IMG ?= moirai-scheduler:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
-ENVTEST_K8S_VERSION = 1.23
-
-VERSION ?= v1.23.3-moirai-scheduler-$(shell date +%Y%m%d)
-SHA1 ?= $(shell git rev-parse HEAD)
-BUILD = $(shell date +%FT%T%z)
-
-LDFLAGS=-ldflags '-X k8s.io/component-base/version.gitVersion=$(VERSION) -X k8s.io/component-base/version.gitCommit=$(SHA1) -X k8s.io/component-base/version.buildDate=$(BUILD)'
+ENVTEST_K8S_VERSION = 1.24.1
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -18,13 +13,12 @@ GOBIN=$(shell go env GOBIN)
 endif
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
-# This is a requirement for 'setup-envtest.sh' in the test target.
 # Options are set to exit when a recipe line exits non-zero or a piped command fails.
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
 .PHONY: all
-all: build
+all: build-controller build-scheduler build-cli
 
 ##@ General
 
@@ -61,10 +55,9 @@ fmt: ## Run go fmt against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
-ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
 .PHONY: test
 test: manifests generate fmt vet envtest ## Run tests.
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./pkg/... -coverprofile cover.out
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./pkg/... ./controllers/... -coverprofile cover.out
 
 E2ETEST_ASSETS_DIR=$(shell pwd)/testdir
 .PHONY: e2e-test
@@ -72,24 +65,30 @@ e2e-test: kustomize ## Run e2e tests.
 	mkdir -p $(E2ETEST_ASSETS_DIR)
 	$(KUSTOMIZE) build config/crd > ${E2ETEST_ASSETS_DIR}/moirai-scheduler.crds.yaml
 	$(KUSTOMIZE) build config/default > ${E2ETEST_ASSETS_DIR}/moirai-scheduler.yaml
-	IMG=${IMG} E2ETEST_ASSETS_DIR=${E2ETEST_ASSETS_DIR} go test -tags=e2e -v ./test/e2e
+	IMG=${IMG} E2ETEST_ASSETS_DIR=${E2ETEST_ASSETS_DIR} go test -tags=e2e -v ./test/e2e/controller
 	@rm -rf ${E2ETEST_ASSETS_DIR}
 
 ##@ Build
 
-.PHONY: build
+LDFLAGS=-ldflags ' \
+	-X k8s.io/component-base/version.gitVersion=$(v1.24.0-moirai-scheduler-$(shell date +%Y%m%d)) \
+	-X k8s.io/component-base/version.gitCommit=$(shell git rev-parse HEAD) \
+	-X k8s.io/component-base/version.buildDate=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ') \
+	'
+
+.PHONY: build-controller
 build: generate fmt vet ## Build manager binary.
 	go build -o bin/manager main.go
 
 .PHONY: build-scheduler
 build-scheduler: ## Build Moirai scheduler binary.
-	CGO_ENABLED=0 go build ${LDFLAGS} -o bin/moirai-scheduler cmd/scheduler/main.go
+	go build ${LDFLAGS} -o bin/moirai-scheduler cmd/scheduler/main.go
 
 .PHONY: build-cli
 build-cli: ## Build Moirai command line tool binary.
-	CGO_ENABLED=0 go build -o bin/moiraictl cmd/cli/main.go
+	go build -o bin/moiraictl cmd/cli/main.go
 
-.PHONY: run
+.PHONY: run-controller
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./main.go
 
@@ -99,11 +98,13 @@ run-scheduler: manifests generate fmt vet ## Run a scheduler from your host.
 
 .PHONY: docker-build
 docker-build: test ## Build docker image with the manager.
-	docker build -t ${IMG} .
+	docker build -f ./build/scheduler/Dockerfile -t ${IMG} .
+	docker build -f ./build/controller/Dockerfile -t ${CONTROLLER_IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
-	docker push ${IMG}
+	docker push -f ./build/scheduler/Dockerfile ${IMG}
+	docker push -f ./build/controller/Dockerfile ${CONTROLLER_IMG}
 
 .PHONY: clean
 clean:
@@ -146,20 +147,20 @@ ENVTEST ?= $(LOCALBIN)/setup-envtest
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v3.8.7
-CONTROLLER_TOOLS_VERSION ?= v0.8.0
+CONTROLLER_TOOLS_VERSION ?= v0.9.0
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.
-$(KUSTOMIZE):
-	curl -s $(KUSTOMIZE_INSTALL_SCRIPT) | bash -s -- $(subst v,,$(KUSTOMIZE_VERSION)) $(LOCALBIN)
+$(KUSTOMIZE): $(LOCALBIN)
+	test -s $(LOCALBIN)/kustomize || { curl -s $(KUSTOMIZE_INSTALL_SCRIPT) | bash -s -- $(subst v,,$(KUSTOMIZE_VERSION)) $(LOCALBIN); }
 
 .PHONY: controller-gen
 controller-gen: $(CONTROLLER_GEN) ## Download controller-gen locally if necessary.
-$(CONTROLLER_GEN):
+$(CONTROLLER_GEN): $(LOCALBIN)
 	GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-tools/cmd/controller-gen@$(CONTROLLER_TOOLS_VERSION)
 
 .PHONY: envtest
 envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
-$(ENVTEST):
+$(ENVTEST): $(LOCALBIN)
 	GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest

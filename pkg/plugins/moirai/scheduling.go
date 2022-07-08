@@ -26,24 +26,24 @@ func (p *Plugin) PreFilterExtensions() framework.PreFilterExtensions {
 
 // PreFilter is called at the beginning of the scheduling cycle. All PreFilter
 // plugins must return success or the pod will be rejected.
-func (p *Plugin) PreFilter(ctx context.Context, state *framework.CycleState, pod *corev1.Pod) *framework.Status {
+func (p *Plugin) PreFilter(ctx context.Context, state *framework.CycleState, pod *corev1.Pod) (*framework.PreFilterResult, *framework.Status) {
 	klog.V(5).InfoS("PreFilter extension point", "pod", klog.KObj(pod))
 
 	queueBinding, err := p.moiraiManager.GetQueueBinding(ctx, pod)
 	if err != nil {
-		return framework.NewStatus(framework.Error, fmt.Sprintf("unable to get QueueBinding: %v", err))
+		return nil, framework.NewStatus(framework.Error, fmt.Sprintf("unable to get QueueBinding: %v", err))
 	}
 	// fetch pods according to the queue binding
 	_, err = p.frameworkHandler.SharedInformerFactory().Core().V1().Pods().Lister().List(
 		labels.SelectorFromSet(labels.Set{moirai.QueueBindingLabel: queueBinding.Name}),
 	)
 	if err != nil {
-		return framework.NewStatus(framework.Error, fmt.Sprintf("unable to list pods in QueueBinding %s: %v", queueBinding.Name, err))
+		return nil, framework.NewStatus(framework.Error, fmt.Sprintf("unable to list pods in QueueBinding %s: %v", queueBinding.Name, err))
 	}
 
 	nodeInfoList, err := p.frameworkHandler.SnapshotSharedLister().NodeInfos().List()
 	if err != nil {
-		return framework.NewStatus(framework.Error, fmt.Sprintf("unable to list nodes: %v", err))
+		return nil, framework.NewStatus(framework.Error, fmt.Sprintf("unable to list nodes: %v", err))
 	}
 	nodeList := make([]*corev1.Node, 0, len(nodeInfoList))
 	for _, nodeInfo := range nodeInfoList {
@@ -54,7 +54,7 @@ func (p *Plugin) PreFilter(ctx context.Context, state *framework.CycleState, pod
 
 	// FIXME:
 	state.Write("", NewStateData(queueBinding.Name, ""))
-	return framework.NewStatus(framework.Success, "")
+	return nil, framework.NewStatus(framework.Success, "")
 }
 
 // Filter Plugin

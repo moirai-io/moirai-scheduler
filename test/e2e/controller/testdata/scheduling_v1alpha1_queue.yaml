@@ -1,0 +1,8 @@
+apiVersion: scheduling.moirai.io/v1alpha1
+kind: Queue
+metadata:
+  name: sample-queue
+spec:
+  capacity:
+    cpu: 1
+    memory: 500Mi

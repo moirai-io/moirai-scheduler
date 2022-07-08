@@ -24,14 +24,14 @@ import (
 	"k8s.io/component-base/logs"
 	"k8s.io/kubernetes/cmd/kube-scheduler/app"
 
-	"github.com/moirai-io/moirai-scheduler/pkg/plugins/moirai/registry"
+	"github.com/moirai-io/moirai-scheduler/pkg/plugins/moirai"
 )
 
 func main() {
 	rand.Seed(time.Now().Local().UnixNano())
 
 	command := app.NewSchedulerCommand(
-		registry.NewRegistryOptions(),
+		app.WithPlugin(moirai.Name, moirai.New),
 	)
 
 	logs.InitLogs()
