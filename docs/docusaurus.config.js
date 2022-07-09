@@ -56,7 +56,7 @@ const config = {
         },
         items: [
           {
-            href: 'https://github.com/moirai-io/moirai-scheduler',
+            href: 'https://github.com/rudeigerc/moirai',
             label: 'GitHub',
             position: 'right',
           },

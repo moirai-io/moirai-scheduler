@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	configv1beta3 "github.com/moirai-io/moirai-scheduler/apis/config/v1beta3"
+	configv1beta3 "github.com/rudeigerc/moirai/apis/config/v1beta3"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 

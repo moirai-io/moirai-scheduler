@@ -3,7 +3,7 @@ package manager
 import (
 	"context"
 
-	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
+	moirai "github.com/rudeigerc/moirai/apis/scheduling/v1alpha1"
 	"k8s.io/apimachinery/pkg/fields"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )

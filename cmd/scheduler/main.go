@@ -24,7 +24,7 @@ import (
 	"k8s.io/component-base/logs"
 	"k8s.io/kubernetes/cmd/kube-scheduler/app"
 
-	"github.com/moirai-io/moirai-scheduler/pkg/plugins/moirai"
+	"github.com/rudeigerc/moirai/pkg/plugins/moirai"
 )
 
 func main() {

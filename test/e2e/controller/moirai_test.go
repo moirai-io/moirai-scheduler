@@ -10,7 +10,7 @@ import (
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
 	"sigs.k8s.io/e2e-framework/pkg/features"
 
-	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
+	moirai "github.com/rudeigerc/moirai/apis/scheduling/v1alpha1"
 )
 
 func TestCRDSetup(t *testing.T) {

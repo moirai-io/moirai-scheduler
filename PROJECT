@@ -3,7 +3,7 @@ layout:
 - go.kubebuilder.io/v3
 multigroup: true
 projectName: moirai
-repo: github.com/moirai-io/moirai-scheduler
+repo: github.com/rudeigerc/moirai
 resources:
 - controller: true
   group: batch
@@ -16,7 +16,7 @@ resources:
   domain: moirai.io
   group: scheduling
   kind: Queue
-  path: github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1
+  path: github.com/rudeigerc/moirai/apis/scheduling/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -25,6 +25,6 @@ resources:
   domain: moirai.io
   group: scheduling
   kind: QueueBinding
-  path: github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1
+  path: github.com/rudeigerc/moirai/apis/scheduling/v1alpha1
   version: v1alpha1
 version: "3"

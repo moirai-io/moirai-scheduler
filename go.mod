@@ -1,4 +1,4 @@
-module github.com/moirai-io/moirai-scheduler
+module github.com/rudeigerc/moirai
 
 go 1.18
 

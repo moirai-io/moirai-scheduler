@@ -9,10 +9,10 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
-	"github.com/moirai-io/moirai-scheduler/pkg/cli/options"
-	"github.com/moirai-io/moirai-scheduler/pkg/cli/printer"
-	"github.com/moirai-io/moirai-scheduler/pkg/internal"
+	moirai "github.com/rudeigerc/moirai/apis/scheduling/v1alpha1"
+	"github.com/rudeigerc/moirai/pkg/cli/options"
+	"github.com/rudeigerc/moirai/pkg/cli/printer"
+	"github.com/rudeigerc/moirai/pkg/internal"
 )
 
 type describeOptions struct {

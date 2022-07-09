@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/moirai-io/moirai-scheduler/pkg/cli/options"
+	"github.com/rudeigerc/moirai/pkg/cli/options"
 )
 
 const (

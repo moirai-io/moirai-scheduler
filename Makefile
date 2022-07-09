@@ -1,7 +1,7 @@
 
 # Image URL to use all building/pushing image targets
-CONTROLLER_IMG ?= moirai-controller:latest
-IMG ?= moirai-scheduler:latest
+CONTROLLER_IMG ?= ghcr.io/rudeigerc/moirai-controller:latest
+IMG ?= ghcr.io/rudeigerc/moirai-scheduler:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.24.1
 

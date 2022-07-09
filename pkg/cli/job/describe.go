@@ -11,8 +11,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 
-	"github.com/moirai-io/moirai-scheduler/pkg/cli/options"
-	"github.com/moirai-io/moirai-scheduler/pkg/cli/printer"
+	"github.com/rudeigerc/moirai/pkg/cli/options"
+	"github.com/rudeigerc/moirai/pkg/cli/printer"
 )
 
 type describeOptions struct {

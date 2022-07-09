@@ -3,11 +3,11 @@ package cli
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/moirai-io/moirai-scheduler/pkg/cli/job"
-	"github.com/moirai-io/moirai-scheduler/pkg/cli/options"
-	"github.com/moirai-io/moirai-scheduler/pkg/cli/queue"
-	"github.com/moirai-io/moirai-scheduler/pkg/cli/queuebinding"
-	"github.com/moirai-io/moirai-scheduler/pkg/cli/version"
+	"github.com/rudeigerc/moirai/pkg/cli/job"
+	"github.com/rudeigerc/moirai/pkg/cli/options"
+	"github.com/rudeigerc/moirai/pkg/cli/queue"
+	"github.com/rudeigerc/moirai/pkg/cli/queuebinding"
+	"github.com/rudeigerc/moirai/pkg/cli/version"
 )
 
 // NewCmdRoot returns the root command for moiraictl.

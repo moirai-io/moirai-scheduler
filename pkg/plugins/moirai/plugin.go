@@ -12,10 +12,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	configv1beta3 "github.com/moirai-io/moirai-scheduler/apis/config/v1beta3"
-	"github.com/moirai-io/moirai-scheduler/pkg/internal"
-	"github.com/moirai-io/moirai-scheduler/pkg/plugins/moirai/manager"
-	"github.com/moirai-io/moirai-scheduler/pkg/utils"
+	configv1beta3 "github.com/rudeigerc/moirai/apis/config/v1beta3"
+	"github.com/rudeigerc/moirai/pkg/internal"
+	"github.com/rudeigerc/moirai/pkg/plugins/moirai/manager"
+	"github.com/rudeigerc/moirai/pkg/utils"
 )
 
 const (

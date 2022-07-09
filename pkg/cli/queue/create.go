@@ -10,9 +10,9 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
-	"github.com/moirai-io/moirai-scheduler/pkg/cli/options"
-	"github.com/moirai-io/moirai-scheduler/pkg/internal"
+	moirai "github.com/rudeigerc/moirai/apis/scheduling/v1alpha1"
+	"github.com/rudeigerc/moirai/pkg/cli/options"
+	"github.com/rudeigerc/moirai/pkg/internal"
 )
 
 type createOptions struct {

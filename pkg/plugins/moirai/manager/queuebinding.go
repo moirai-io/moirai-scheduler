@@ -7,7 +7,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
+	moirai "github.com/rudeigerc/moirai/apis/scheduling/v1alpha1"
 )
 
 // GetQueueBinding returns the queue binding of the specified pod

@@ -32,7 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
+	moirai "github.com/rudeigerc/moirai/apis/scheduling/v1alpha1"
 )
 
 // QueueReconciler reconciles a Queue object

@@ -6,7 +6,7 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	kubeschedulerscheme "k8s.io/kubernetes/pkg/scheduler/apis/config/scheme"
 
-	"github.com/moirai-io/moirai-scheduler/apis/config/v1beta3"
+	"github.com/rudeigerc/moirai/apis/config/v1beta3"
 )
 
 var (

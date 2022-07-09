@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	moiraictl "github.com/moirai-io/moirai-scheduler/pkg/cli"
+	moiraictl "github.com/rudeigerc/moirai/pkg/cli"
 )
 
 func main() {
