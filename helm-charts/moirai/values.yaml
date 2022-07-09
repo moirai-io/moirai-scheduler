@@ -1,0 +1,14 @@
+# Default values for moirai-scheduler.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+scheduler:
+  name: moirai-scheduler
+  image: ghcr.io/rudeigerc/moirai-scheduler:latest
+  namespace: moirai-system
+  replicaCount: 1
+controller:
+  name: moirai-controller
+  image: ghcr.io/rudeigerc/moirai-controller:latest
+  namespace: moirai-system
+  replicaCount: 1
