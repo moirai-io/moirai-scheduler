@@ -70,8 +70,8 @@ e2e-test: kustomize ## Run e2e tests.
 
 ##@ Build
 
-LDFLAGS=-ldflags ' \
-	-X k8s.io/component-base/version.gitVersion=$(v1.24.0-moirai-scheduler-$(shell date +%Y%m%d)) \
+LDFLAGS=-ldflags '\
+	-X k8s.io/component-base/version.gitVersion=v1.24.0-moirai-scheduler-$(shell date +%Y%m%d) \
 	-X k8s.io/component-base/version.gitCommit=$(shell git rev-parse HEAD) \
 	-X k8s.io/component-base/version.buildDate=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ') \
 	'
@@ -89,7 +89,7 @@ build-cli: ## Build Moirai command line tool binary.
 	go build -o bin/moiraictl cmd/cli/main.go
 
 .PHONY: run-controller
-run: manifests generate fmt vet ## Run a controller from your host.
+run-controller: manifests generate fmt vet ## Run a controller from your host.
 	go run ./main.go
 
 .PHONY: run-scheduler

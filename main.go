@@ -33,6 +33,7 @@ import (
 
 	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
 	"github.com/moirai-io/moirai-scheduler/controllers"
+	batchcontrollers "github.com/moirai-io/moirai-scheduler/controllers/batch"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -78,12 +79,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.QueueReconciler{
-		Client:   mgr.GetClient(),
-		Log:      ctrl.Log.WithName("controllers").WithName("Queue"),
-		Recorder: mgr.GetEventRecorderFor("Queue"),
-		Scheme:   mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
+	queueReconciler := controllers.NewQueueReconciler(
+		mgr.GetClient(),
+		mgr.GetScheme(),
+		ctrl.Log.WithName("controllers").WithName("Queue"),
+		mgr.GetEventRecorderFor("Queue"),
+	)
+	if err = queueReconciler.SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Queue")
 		os.Exit(1)
 	}
@@ -95,6 +97,15 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "QueueBinding")
 		os.Exit(1)
 	}
+
+	if err = (&batchcontrollers.JobReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Job")
+		os.Exit(1)
+	}
+
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {

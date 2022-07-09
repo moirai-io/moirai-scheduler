@@ -33,6 +33,7 @@ func main() {
 	command := app.NewSchedulerCommand(
 		app.WithPlugin(moirai.Name, moirai.New),
 	)
+	command.SilenceUsage = true
 
 	logs.InitLogs()
 	defer logs.FlushLogs()

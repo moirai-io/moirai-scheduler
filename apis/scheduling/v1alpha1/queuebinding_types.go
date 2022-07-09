@@ -74,8 +74,8 @@ type QueueBindingStatus struct {
 }
 
 //+kubebuilder:object:root=true
-//+kubebuilder:resource:scope=Namespaced
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="Job",type="string",JSONPath=".spec.jobRef.name"
 
 // QueueBinding is the Schema for the queuebindings API
 type QueueBinding struct {

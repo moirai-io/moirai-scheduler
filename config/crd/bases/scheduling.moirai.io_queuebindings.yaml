@@ -15,7 +15,11 @@ spec:
     singular: queuebinding
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.jobRef.name
+      name: Job
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: QueueBinding is the Schema for the queuebindings API

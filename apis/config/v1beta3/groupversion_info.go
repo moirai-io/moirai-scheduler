@@ -18,29 +18,30 @@ limitations under the License.
 package v1beta3
 
 import (
-	runtime "k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/kube-scheduler/config/v1beta3"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	schedschemev1beta3 "k8s.io/kube-scheduler/config/v1beta3"
+	schedconfig "k8s.io/kubernetes/pkg/scheduler/apis/config"
 )
 
+// SchemeGroupVersion is group version used to register these objects
+var SchemeGroupVersion = schema.GroupVersion{Group: schedconfig.GroupName, Version: "v1beta3"}
+
 var (
-	// GroupVersion is group version used to register these objects
-	GroupVersion = v1beta3.SchemeGroupVersion
-
-	// SchemeBuilder is used to add go types to the GroupVersionKind scheme
-	SchemeBuilder = &v1beta3.SchemeBuilder
-
-	// AddToScheme adds the types in this group-version to the given scheme.
-	AddToScheme = SchemeBuilder.AddToScheme
+	// localSchemeBuilder and AddToScheme will stay in k8s.io/kubernetes.
+	localSchemeBuilder = &schedschemev1beta3.SchemeBuilder
+	// AddToScheme is a global function that registers this API group & version to a scheme
+	AddToScheme = localSchemeBuilder.AddToScheme
 )
 
 // addKnownTypes registers known types to the given scheme
 func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypes(GroupVersion,
+	scheme.AddKnownTypes(SchemeGroupVersion,
 		&MoiraiArgs{},
 	)
 	return nil
 }
 
 func init() {
-	SchemeBuilder.Register(addKnownTypes)
+	localSchemeBuilder.Register(addKnownTypes)
 }

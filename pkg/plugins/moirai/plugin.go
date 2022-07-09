@@ -61,7 +61,11 @@ func New(obj runtime.Object, handle framework.Handle) (framework.Plugin, error) 
 	klog.Info("Creating new Moirai plugin")
 
 	// FIXME: parse args directly
-	// args, _ := obj.(*configv1beta3.MoiraiArgs)
+	// args, ok := obj.(*configv1beta3.MoiraiArgs)
+	// if !ok {
+	// 	return nil, fmt.Errorf("unable to parse MoiraiArgs, got %T", obj)
+	// }
+
 	var args configv1beta3.MoiraiArgs
 	err := utils.ParsePluginArgs(obj, &args)
 	if err != nil {

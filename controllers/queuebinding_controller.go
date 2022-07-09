@@ -20,8 +20,6 @@ import (
 	"context"
 
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/kubernetes/pkg/apis/scheduling"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -52,16 +50,7 @@ func (r *QueueBindingReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-	log.V(3).Info("Reconciling QueueBinding")
-
-	var priorityClass scheduling.PriorityClass
-	err := r.Get(ctx, types.NamespacedName{
-		Namespace: req.Namespace,
-		Name:      queueBindingObj.Spec.PriorityClassName,
-	}, &priorityClass)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
+	log.V(2).Info("Reconciling QueueBinding")
 
 	if err := r.Status().Update(ctx, &queueBindingObj); err != nil {
 		log.Error(err, "unable to update QueueBinding status")

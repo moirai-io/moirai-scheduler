@@ -1,9 +1,15 @@
 domain: moirai.io
 layout:
 - go.kubebuilder.io/v3
+multigroup: true
 projectName: moirai
 repo: github.com/moirai-io/moirai-scheduler
 resources:
+- controller: true
+  group: batch
+  kind: Job
+  path: k8s.io/api/batch/v1
+  version: v1
 - api:
     crdVersion: v1
   controller: true
@@ -14,6 +20,7 @@ resources:
   version: v1alpha1
 - api:
     crdVersion: v1
+    namespaced: true
   controller: true
   domain: moirai.io
   group: scheduling

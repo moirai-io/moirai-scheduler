@@ -18,13 +18,19 @@ package controllers
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	moirai "github.com/moirai-io/moirai-scheduler/apis/scheduling/v1alpha1"
 )
@@ -35,6 +41,23 @@ type QueueReconciler struct {
 	Log      logr.Logger
 	Recorder record.EventRecorder
 	Scheme   *runtime.Scheme
+	sourceCh chan event.GenericEvent
+}
+
+// NewQueueReconciler returns a new QueueReconciler.
+func NewQueueReconciler(
+	client client.Client,
+	scheme *runtime.Scheme,
+	log logr.Logger,
+	recorder record.EventRecorder,
+) *QueueReconciler {
+	return &QueueReconciler{
+		Client:   client,
+		Log:      log,
+		Recorder: recorder,
+		Scheme:   scheme,
+		sourceCh: make(chan event.GenericEvent, 10),
+	}
 }
 
 //+kubebuilder:rbac:groups=scheduling.moirai.io,resources=queues,verbs=get;list;watch;create;update;patch;delete
@@ -56,7 +79,7 @@ func (r *QueueReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-	log.V(3).Info("Reconciling Queue")
+	log.V(2).Info("Reconciling Queue")
 
 	if err := r.Status().Update(ctx, &queueObj); err != nil {
 		log.Error(err, "unable to update Queue status")
@@ -70,5 +93,32 @@ func (r *QueueReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 func (r *QueueReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&moirai.Queue{}).
+		Watches(&source.Channel{Source: r.sourceCh}, &queueBindingEventHandler{}).
 		Complete(r)
+}
+
+type queueBindingEventHandler struct{}
+
+func (h *queueBindingEventHandler) Create(event.CreateEvent, workqueue.RateLimitingInterface) {
+}
+
+func (h *queueBindingEventHandler) Update(event.UpdateEvent, workqueue.RateLimitingInterface) {
+}
+
+func (h *queueBindingEventHandler) Delete(event.DeleteEvent, workqueue.RateLimitingInterface) {
+}
+
+func (h *queueBindingEventHandler) Generic(e event.GenericEvent, q workqueue.RateLimitingInterface) {
+	queueBinding := e.Object.(*moirai.QueueBinding)
+	if queueBinding.Name == "" {
+		return
+	}
+
+	req := reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Name:      queueBinding.Spec.Queue,
+			Namespace: queueBinding.Namespace,
+		},
+	}
+	q.AddAfter(req, time.Second)
 }
