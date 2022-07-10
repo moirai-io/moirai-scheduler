@@ -68,6 +68,15 @@ e2e-test: kustomize ## Run e2e tests.
 	IMG=${IMG} E2ETEST_ASSETS_DIR=${E2ETEST_ASSETS_DIR} go test -tags=e2e -v ./test/e2e/controller
 	@rm -rf ${E2ETEST_ASSETS_DIR}
 
+ETCD_PATH=$(shell pwd)/third_party/etcd
+.PHONY: test-scheduler-perf
+test-scheduler-perf: ## Run Kubernetes scheduler performance tests.
+ifeq (,$(wildcard ${ETCD_PATH}))
+	@echo "Installing etcd"
+	./hack/install-etcd.sh
+endif
+	PATH="${ETCD_PATH}:${PATH}" go test ./test/integration/scheduler_perf -alsologtostderr=false -logtostderr=false -run=^$$ -benchtime=1ns -bench=BenchmarkPerfScheduling/SchedulingBasic/5000Nodes/5000InitPods/1000PodsToSchedule
+
 ##@ Build
 
 LDFLAGS=-ldflags '\
