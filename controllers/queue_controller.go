@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
@@ -29,7 +30,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
@@ -39,9 +39,9 @@ import (
 // QueueReconciler reconciles a Queue object
 type QueueReconciler struct {
 	client.Client
+	Scheme   *runtime.Scheme
 	Log      logr.Logger
 	Recorder record.EventRecorder
-	Scheme   *runtime.Scheme
 	sourceCh chan event.GenericEvent
 }
 
@@ -53,9 +53,9 @@ func NewQueueReconciler(
 ) *QueueReconciler {
 	return &QueueReconciler{
 		Client:   client,
+		Scheme:   scheme,
 		Log:      ctrl.Log.WithName("controllers").WithName("Queue"),
 		Recorder: recorder,
-		Scheme:   scheme,
 		sourceCh: make(chan event.GenericEvent, 10),
 	}
 }
@@ -70,25 +70,27 @@ func NewQueueReconciler(
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 func (r *QueueReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := log.FromContext(ctx)
-
 	var queueObj moirai.Queue
 	if err := r.Get(ctx, req.NamespacedName, &queueObj); err != nil {
-		log.Error(err, "unable to fetch Queue")
+		klog.Error(err, "unable to fetch Queue")
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
 		// requeue (we'll need to wait for a new notification), and we can get them
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	log = ctrl.LoggerFrom(ctx).WithValues("queue", klog.KObj(&queueObj))
+	log := ctrl.LoggerFrom(ctx).WithValues("queue", klog.KObj(&queueObj))
 	ctx = ctrl.LoggerInto(ctx, log)
 
 	log.V(2).Info("Reconciling Queue")
 
-	if err := r.Status().Update(ctx, &queueObj); err != nil {
-		log.Error(err, "unable to update Queue status")
-		return ctrl.Result{}, err
+	oldStatus := queueObj.Status
+
+	if !equality.Semantic.DeepEqual(oldStatus, queueObj.Status) {
+		if err := r.Status().Update(ctx, &queueObj); err != nil {
+			log.Error(err, "unable to update Queue status")
+			return ctrl.Result{}, err
+		}
 	}
 
 	return ctrl.Result{}, nil
@@ -96,16 +98,28 @@ func (r *QueueReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 // Create returns true if the Create event should be processed
 func (r *QueueReconciler) Create(e event.CreateEvent) bool {
+	queue := e.Object.(*moirai.Queue)
+	log := r.Log.WithValues("queue", klog.KObj(queue))
+	log.V(2).Info("Queue create event")
+
 	return true
 }
 
 // Delete returns true if the Delete event should be processed
 func (r *QueueReconciler) Delete(e event.DeleteEvent) bool {
+	queue := e.Object.(*moirai.Queue)
+	log := r.Log.WithValues("queue", klog.KObj(queue))
+	log.V(2).Info("Queue delete event")
+
 	return true
 }
 
 // Update returns true if the Update event should be processed
 func (r *QueueReconciler) Update(e event.UpdateEvent) bool {
+	queue := e.ObjectNew.(*moirai.Queue)
+	log := r.Log.WithValues("queue", klog.KObj(queue))
+	log.V(2).Info("Queue update event")
+
 	return true
 }
 

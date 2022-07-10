@@ -19,12 +19,14 @@ package controllers
 import (
 	"context"
 
+	"github.com/go-logr/logr"
+	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	moirai "github.com/rudeigerc/moirai/apis/scheduling/v1alpha1"
 )
@@ -33,6 +35,8 @@ import (
 type QueueBindingReconciler struct {
 	client.Client
 	Scheme   *runtime.Scheme
+	Log      logr.Logger
+	Recorder record.EventRecorder
 	Handlers []QueueBindingEventHandler
 }
 
@@ -40,11 +44,14 @@ type QueueBindingReconciler struct {
 func NewQueueBindingReconciler(
 	client client.Client,
 	scheme *runtime.Scheme,
+	recorder record.EventRecorder,
 	handlers ...QueueBindingEventHandler,
 ) *QueueBindingReconciler {
 	return &QueueBindingReconciler{
 		Client:   client,
 		Scheme:   scheme,
+		Log:      ctrl.Log.WithName("controllers").WithName("QueueBinding"),
+		Recorder: recorder,
 		Handlers: handlers,
 	}
 }
@@ -57,25 +64,27 @@ func NewQueueBindingReconciler(
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 func (r *QueueBindingReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := log.FromContext(ctx)
-
 	var queueBindingObj moirai.QueueBinding
 	if err := r.Get(ctx, req.NamespacedName, &queueBindingObj); err != nil {
-		log.Error(err, "unable to fetch QueueBinding")
+		klog.Error(err, "unable to fetch QueueBinding")
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
 		// requeue (we'll need to wait for a new notification), and we can get them
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	log = ctrl.LoggerFrom(ctx).WithValues("queuebinding", klog.KObj(&queueBindingObj))
+	log := ctrl.LoggerFrom(ctx).WithValues("queuebinding", klog.KObj(&queueBindingObj))
 	ctx = ctrl.LoggerInto(ctx, log)
 
 	log.V(2).Info("Reconciling QueueBinding")
 
-	if err := r.Status().Update(ctx, &queueBindingObj); err != nil {
-		log.Error(err, "unable to update QueueBinding status")
-		return ctrl.Result{}, err
+	oldStatus := queueBindingObj.Status
+
+	if !equality.Semantic.DeepEqual(oldStatus, queueBindingObj.Status) {
+		if err := r.Status().Update(ctx, &queueBindingObj); err != nil {
+			log.Error(err, "unable to update QueueBinding status")
+			return ctrl.Result{}, err
+		}
 	}
 
 	return ctrl.Result{}, nil
@@ -98,6 +107,10 @@ func (r *QueueBindingReconciler) handleEvents(queueBinding *moirai.QueueBinding)
 func (r *QueueBindingReconciler) Create(e event.CreateEvent) bool {
 	queueBinding := e.Object.(*moirai.QueueBinding)
 	defer r.handleEvents(queueBinding)
+
+	log := r.Log.WithValues("queuebinding", klog.KObj(queueBinding))
+	log.V(2).Info("QueueBinding create event")
+
 	return true
 }
 
@@ -105,6 +118,10 @@ func (r *QueueBindingReconciler) Create(e event.CreateEvent) bool {
 func (r *QueueBindingReconciler) Delete(e event.DeleteEvent) bool {
 	queueBinding := e.Object.(*moirai.QueueBinding)
 	defer r.handleEvents(queueBinding)
+
+	log := r.Log.WithValues("queuebinding", klog.KObj(queueBinding))
+	log.V(2).Info("QueueBinding delete event")
+
 	return true
 }
 
@@ -115,6 +132,9 @@ func (r *QueueBindingReconciler) Update(e event.UpdateEvent) bool {
 
 	defer r.handleEvents(queueBindingOld)
 	defer r.handleEvents(queueBindingNew)
+
+	log := r.Log.WithValues("queuebinding", klog.KObj(queueBindingNew))
+	log.V(2).Info("QueueBinding update event")
 
 	return true
 }

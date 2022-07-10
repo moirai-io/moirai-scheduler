@@ -19,10 +19,13 @@ package batch
 import (
 	"context"
 
+	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -34,7 +37,23 @@ import (
 // JobReconciler reconciles a Job object
 type JobReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	Log      logr.Logger
+	Recorder record.EventRecorder
+}
+
+// NewJobReconciler returns a new JobReconciler.
+func NewJobReconciler(
+	client client.Client,
+	scheme *runtime.Scheme,
+	recorder record.EventRecorder,
+) *JobReconciler {
+	return &JobReconciler{
+		Client:   client,
+		Scheme:   scheme,
+		Log:      ctrl.Log.WithName("controllers").WithName("Job"),
+		Recorder: recorder,
+	}
 }
 
 //+kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;update;patch;delete
@@ -47,8 +66,6 @@ type JobReconciler struct {
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 func (r *JobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := log.FromContext(ctx)
-
 	var jobObj batchv1.Job
 	if err := r.Get(ctx, req.NamespacedName, &jobObj); err != nil {
 		klog.Error(err, "unable to fetch Job")
@@ -58,7 +75,7 @@ func (r *JobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	log = ctrl.LoggerFrom(ctx).WithValues("job", klog.KObj(&jobObj))
+	log := ctrl.LoggerFrom(ctx).WithValues("job", klog.KObj(&jobObj))
 	ctx = ctrl.LoggerInto(ctx, log)
 
 	if queueName(&jobObj) == "" {
@@ -86,11 +103,6 @@ func (r *JobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	// queueBinding := queueBindingList.Items[0]
 	// if jobSuspended(&jobObj) {
 	// }
-
-	if err := r.Status().Update(ctx, &jobObj); err != nil {
-		log.Error(err, "unable to update Job status")
-		return ctrl.Result{}, err
-	}
 
 	return ctrl.Result{}, nil
 }
@@ -144,14 +156,16 @@ func (r *JobReconciler) createQueueBinding(ctx context.Context, job *batchv1.Job
 		},
 	}
 
-	if err := r.Create(ctx, queueBinding); err != nil {
-		return err
-	}
-	log.V(3).Info("Create QueueBinding", "QueueBinding", queueBinding.Name)
-
 	if err := ctrl.SetControllerReference(job, queueBinding, r.Scheme); err != nil {
 		return err
 	}
+
+	if err := r.Create(ctx, queueBinding); err != nil {
+		return err
+	}
+
+	log.V(3).Info("Create QueueBinding", "QueueBinding", queueBinding.Name)
+	r.Recorder.Eventf(job, corev1.EventTypeNormal, "CreatedQueueBinding", "Created QueueBinding: %v", queueBinding.Name)
 
 	// job.Spec.Template.Labels[moirai.QueueBindingLabel] = queueBinding.Name
 	// if err := r.Update(ctx, job); err != nil {

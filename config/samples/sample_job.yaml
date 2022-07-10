@@ -5,6 +5,7 @@ metadata:
   labels:
     moirai.io/queue: sample-queue
 spec:
+  backoffLimit: 4
   template:
     metadata:
       labels:
@@ -13,7 +14,7 @@ spec:
       schedulerName: moirai-scheduler
       containers:
       - name: pi
-        image: perl
+        image: perl:5.34
         command: ["perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"]
         resources:
           requests:

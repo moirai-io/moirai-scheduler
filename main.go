@@ -79,6 +79,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	jobReconciler := batchcontrollers.NewJobReconciler(
+		mgr.GetClient(),
+		mgr.GetScheme(),
+		mgr.GetEventRecorderFor("Job"),
+	)
+	if err = jobReconciler.SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Job")
+		os.Exit(1)
+	}
+
 	queueReconciler := controllers.NewQueueReconciler(
 		mgr.GetClient(),
 		mgr.GetScheme(),
@@ -92,18 +102,12 @@ func main() {
 	queueBindingReconciler := controllers.NewQueueBindingReconciler(
 		mgr.GetClient(),
 		mgr.GetScheme(),
+		mgr.GetEventRecorderFor("QueueBinding"),
 		queueReconciler,
+		// jobReconciler,
 	)
 	if err = queueBindingReconciler.SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "QueueBinding")
-		os.Exit(1)
-	}
-
-	if err = (&batchcontrollers.JobReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Job")
 		os.Exit(1)
 	}
 
