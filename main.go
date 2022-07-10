@@ -82,7 +82,6 @@ func main() {
 	queueReconciler := controllers.NewQueueReconciler(
 		mgr.GetClient(),
 		mgr.GetScheme(),
-		ctrl.Log.WithName("controllers").WithName("Queue"),
 		mgr.GetEventRecorderFor("Queue"),
 	)
 	if err = queueReconciler.SetupWithManager(mgr); err != nil {
@@ -90,10 +89,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.QueueBindingReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
+	queueBindingReconciler := controllers.NewQueueBindingReconciler(
+		mgr.GetClient(),
+		mgr.GetScheme(),
+		queueReconciler,
+	)
+	if err = queueBindingReconciler.SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "QueueBinding")
 		os.Exit(1)
 	}

@@ -62,6 +62,7 @@ type QueueStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:resource:scope=Cluster
+//+kubebuilder:resource:shortName=q
 //+kubebuilder:subresource:status
 //+kubebuilder:printcolumn:name="CPU",type="string",JSONPath=".spec.resources.cpu"
 //+kubebuilder:printcolumn:name="Memory",type="string",JSONPath=".spec.resources.memory"

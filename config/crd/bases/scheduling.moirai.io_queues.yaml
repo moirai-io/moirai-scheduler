@@ -12,8 +12,10 @@ spec:
     kind: Queue
     listKind: QueueList
     plural: queues
+    shortNames:
+    - q
     singular: queue
-  scope: Cluster
+  scope: Namespaced
   versions:
   - additionalPrinterColumns:
     - jsonPath: .spec.resources.cpu

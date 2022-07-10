@@ -74,6 +74,7 @@ type QueueBindingStatus struct {
 }
 
 //+kubebuilder:object:root=true
+//+kubebuilder:resource:shortName=qb
 //+kubebuilder:subresource:status
 //+kubebuilder:printcolumn:name="Job",type="string",JSONPath=".spec.jobRef.name"
 

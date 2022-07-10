@@ -15,7 +15,13 @@ COPY apis/ apis/
 COPY pkg/ pkg/
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o scheduler main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a \
+    -ldflags="-w -s \
+    -X k8s.io/component-base/version.gitVersion=v1.24.0-moirai-scheduler-$(shell date +%Y%m%d) \
+    -X k8s.io/component-base/version.gitCommit=$(shell git rev-parse HEAD) \
+    -X k8s.io/component-base/version.buildDate=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ') \
+    "\
+    -o scheduler main.go
 
 # Use distroless as minimal base image to package the scheduler binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details

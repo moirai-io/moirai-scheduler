@@ -6,6 +6,9 @@ metadata:
     moirai.io/queue: sample-queue
 spec:
   template:
+    metadata:
+      labels:
+        moirai.io/queue-binding: queuebinding-sample-job
     spec:
       schedulerName: moirai-scheduler
       containers:
@@ -14,9 +17,9 @@ spec:
         command: ["perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"]
         resources:
           requests:
-            cpu: 1
+            cpu: "1"
             memory: "100Mi"
           limits:
-            cpu: 1
+            cpu: "1"
             memory: "100Mi"
       restartPolicy: Never

@@ -12,6 +12,8 @@ spec:
     kind: QueueBinding
     listKind: QueueBindingList
     plural: queuebindings
+    shortNames:
+    - qb
     singular: queuebinding
   scope: Namespaced
   versions:

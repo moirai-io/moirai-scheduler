@@ -75,7 +75,7 @@ ifeq (,$(wildcard ${ETCD_PATH}))
 	@echo "Installing etcd"
 	./hack/install-etcd.sh
 endif
-	PATH="${ETCD_PATH}:${PATH}" go test ./test/integration/scheduler_perf -alsologtostderr=false -logtostderr=false -run=^$$ -benchtime=1ns -bench=BenchmarkPerfScheduling/SchedulingBasic/5000Nodes/5000InitPods/1000PodsToSchedule
+	PATH="${ETCD_PATH}:${PATH}" go test ./test/integration/scheduler_perf -alsologtostderr=false -logtostderr=false -run=^$$ -benchtime=1ns -bench=BenchmarkPerfScheduling/SchedulingBasic/10Nodes/10InitPods/10PodsToSchedule
 
 ##@ Build
 

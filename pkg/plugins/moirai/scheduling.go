@@ -31,8 +31,10 @@ func (p *Plugin) PreFilter(ctx context.Context, state *framework.CycleState, pod
 
 	queueBinding, err := p.moiraiManager.GetQueueBinding(ctx, pod)
 	if err != nil {
-		return nil, framework.NewStatus(framework.Error, fmt.Sprintf("unable to get QueueBinding: %v", err))
+		return nil, framework.AsStatus(fmt.Errorf("unable to get QueueBinding: %v", err))
 	}
+	klog.V(5).InfoS("Got QueueBinding of Pod", "pod", pod.Name, "queueBinding", queueBinding.Name)
+
 	// fetch pods according to the queue binding
 	_, err = p.frameworkHandler.SharedInformerFactory().Core().V1().Pods().Lister().List(
 		labels.SelectorFromSet(labels.Set{moirai.QueueBindingLabel: queueBinding.Name}),
@@ -68,10 +70,11 @@ func (p *Plugin) Filter(ctx context.Context, state *framework.CycleState, pod *c
 		return framework.AsStatus(fmt.Errorf("node not found"))
 	}
 
-	_, err := p.moiraiManager.GetQueueBinding(ctx, pod)
+	queueBinding, err := p.moiraiManager.GetQueueBinding(ctx, pod)
 	if err != nil {
 		return framework.NewStatus(framework.Error, fmt.Sprintf("unable to get QueueBinding: %v", err))
 	}
+	klog.V(5).InfoS("Got QueueBinding of Pod", "pod", pod.Name, "queueBinding", queueBinding.Name)
 
 	return framework.NewStatus(framework.Success, "")
 }

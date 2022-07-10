@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
+	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -48,18 +49,18 @@ type QueueReconciler struct {
 func NewQueueReconciler(
 	client client.Client,
 	scheme *runtime.Scheme,
-	log logr.Logger,
 	recorder record.EventRecorder,
 ) *QueueReconciler {
 	return &QueueReconciler{
 		Client:   client,
-		Log:      log,
+		Log:      ctrl.Log.WithName("controllers").WithName("Queue"),
 		Recorder: recorder,
 		Scheme:   scheme,
 		sourceCh: make(chan event.GenericEvent, 10),
 	}
 }
 
+//+kubebuilder:rbac:groups="",resources=events,verbs=create;watch;update
 //+kubebuilder:rbac:groups=scheduling.moirai.io,resources=queues,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=scheduling.moirai.io,resources=queues/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=scheduling.moirai.io,resources=queues/finalizers,verbs=update
@@ -79,6 +80,10 @@ func (r *QueueReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
+
+	log = ctrl.LoggerFrom(ctx).WithValues("queue", klog.KObj(&queueObj))
+	ctx = ctrl.LoggerInto(ctx, log)
+
 	log.V(2).Info("Reconciling Queue")
 
 	if err := r.Status().Update(ctx, &queueObj); err != nil {
@@ -89,12 +94,38 @@ func (r *QueueReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	return ctrl.Result{}, nil
 }
 
+// Create returns true if the Create event should be processed
+func (r *QueueReconciler) Create(e event.CreateEvent) bool {
+	return true
+}
+
+// Delete returns true if the Delete event should be processed
+func (r *QueueReconciler) Delete(e event.DeleteEvent) bool {
+	return true
+}
+
+// Update returns true if the Update event should be processed
+func (r *QueueReconciler) Update(e event.UpdateEvent) bool {
+	return true
+}
+
+// Generic returns true if the Generic event should be processed
+func (r *QueueReconciler) Generic(e event.GenericEvent) bool {
+	return true
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *QueueReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&moirai.Queue{}).
 		Watches(&source.Channel{Source: r.sourceCh}, &queueBindingEventHandler{}).
+		WithEventFilter(r).
 		Complete(r)
+}
+
+// HandleQueueBindingUpdateEvent is a handler for QueueBinding update events.
+func (r *QueueReconciler) HandleQueueBindingUpdateEvent(qb *moirai.QueueBinding) {
+	r.sourceCh <- event.GenericEvent{Object: qb}
 }
 
 type queueBindingEventHandler struct{}

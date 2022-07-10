@@ -24,7 +24,7 @@ func (m *MoiraiManager) CheckResources(nodeList []*framework.NodeInfo, resource 
 	}
 }
 
-// GetNodeAvaliableResource returns the available resource of the node
-func (m *MoiraiManager) GetNodeAvaliableResource() *framework.Resource {
+// GetNodeAvailableResource returns the available resource of the node
+func (m *MoiraiManager) GetNodeAvailableResource() *framework.Resource {
 	return nil
 }
